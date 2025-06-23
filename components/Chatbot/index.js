@@ -4,7 +4,6 @@ import ModalChatbot from "./modalChatbot";
 const clientQuestions = [
   "Таны төлөвлөгөөний зорилго?",
   "Таны зорилтод хэрэглэгчид?",
-
   "Таны үйл ажиллагааны чиглэл",
   "Таны боломжит маркетингийн төсөв?",
 ];
@@ -19,8 +18,6 @@ const Chatbot = () => {
   ]);
   const [input, setInput] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Step-by-step client question state
   const [clientStep, setClientStep] = useState(0);
   const [clientAnswers, setClientAnswers] = useState([]);
 
@@ -44,9 +41,21 @@ const Chatbot = () => {
       question: clientQuestions[0], // here
       answer: "Баярлалаа таны төлөвлөгөө бэлэн боллоо ",
     },
-  ];
+  ];  
+// Call your backend endpoint to get OpenAI response
+async function fetchAIResponse(message) {
+  const response = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message }),
+  });
 
-  const handleSend = () => {
+  const data = await response.json();
+  console.log('data==>', data); // This will log the backend response in your browser console
+  return data.reply;
+}
+  
+  const handleSend = async () => {
     if (!input.trim()) return;
 
     setMessages([...messages, { from: "user", text: input }]);
@@ -55,22 +64,23 @@ const Chatbot = () => {
     if (clientStep > 0 && clientStep <= clientQuestions.length) {
       const nextStep = clientStep + 1;
       setClientAnswers([...clientAnswers, input]);
-      setTimeout(() => {
-        if (nextStep > clientQuestions.length) {
-          setMessages((msgs) => [
-            ...msgs,
-            { from: "bot", text: "Баярлалаа. Таны мэдээлэл бүрдлээ." },
-          ]);
-          setIsModalOpen(true);
-          setClientStep(0);
-          setClientAnswers([]);
-        } else {
-          setMessages((msgs) => [
-            ...msgs,
-            { from: "bot", text: clientQuestions[nextStep - 1] },
-          ]);
-          setClientStep(nextStep);
-        }
+      setTimeout(async () => {
+        const found = faq.find(
+      (f) => input.trim().toLowerCase() === f.question.toLowerCase()
+    );
+    if (found) {
+      setMessages((msgs) => [
+        ...msgs,
+        { from: "bot", text: found.answer },
+      ]);
+    } else {
+      // Call AI if not found in FAQ
+      const aiReply = await fetchAIResponse(input);
+      setMessages((msgs) => [
+        ...msgs,
+        { from: "bot", text: aiReply || "Уучлаарай, таны асуултыг ойлгосонгүй. Дахин оролдоно уу." },
+      ]);
+    }
       }, 500);
       setInput("");
       return;

@@ -54,11 +54,11 @@ const Index = () => {
               ></div>
             </div>
           </div>
-          <div className='flex justify-center bg-[#F9FAFB]'>
+          {/* <div className='flex justify-center bg-[#F9FAFB]'>
             <div className='flex w-[80%] flex-col items-center justify-center mb-[64px]'>
               <Blogs fromDetail='fromDetail' />
             </div>
-          </div>
+          </div> */}
         </>
       )}
     </>
