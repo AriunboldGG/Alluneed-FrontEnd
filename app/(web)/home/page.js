@@ -24,9 +24,9 @@ const Home = () => {
                 <div className='relative w-[99vw] top-[-123px]'>
                     <Hottest />
                 </div>
-                <div className='mb-[100px]'>
+                {/* <div className='mb-[100px]'>
                     <Blogs />
-                </div>
+                </div> */}
                 <Chatbot />
             </HomeLayout>
         </>
