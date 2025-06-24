@@ -1,6 +1,8 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import { AuthContext } from "@/context/auth/authContext";
 import ModalChatbot from "./modalChatbot";
+import { Spinner, Tooltip, Avatar, Input, Button } from "@nextui-org/react";
+import { FaPaperPlane, FaRobot, FaUser } from "react-icons/fa";
 
 const clientQuestions = [
   "Таны төлөвлөгөөний зорилго?",
@@ -24,6 +26,14 @@ const Chatbot = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [clientStep, setClientStep] = useState(0);
   const [clientAnswers, setClientAnswers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    if (open && chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, open]);
 
   const faq = [
     {
@@ -46,51 +56,44 @@ const Chatbot = () => {
       answer: "Баярлалаа таны төлөвлөгөө бэлэн боллоо ",
     },
   ];  
-// Call your backend endpoint to get OpenAI response
-async function fetchAIResponse(message) {
-  try {
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
-    });
 
-    if (!response.ok) {
-      // Handle HTTP errors like 404, 500 etc.
-      console.error("API call failed with status:", response.status);
+  // Call your backend endpoint to get OpenAI response
+  async function fetchAIResponse(message) {
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
+      if (!response.ok) {
+        console.error("API call failed with status:", response.status);
+        return null;
+      }
+      const data = await response.json();
+      return data.reply;
+    } catch (error) {
+      console.error("Fetch AI response error:", error);
       return null;
     }
-
-    const data = await response.json();
-    return data.reply;
-  } catch (error) {
-    // Handle network errors or JSON parsing errors
-    console.error("Fetch AI response error:", error);
-    return null;
   }
-}
-  
-  const handleSend = async () => {
-    if (!input.trim()) return;
 
+  const handleSend = async () => {
+    if (!input.trim() || loading) return;
     const currentUserMessage = input;
     setMessages((prev) => [...prev, { from: "user", text: currentUserMessage }]);
-    setInput(""); // Clear input immediately for better UX
-
+    setInput("");
+    setLoading(true);
     // If in client question flow
     if (clientStep > 0 && clientStep <= clientQuestions.length) {
-      const nextStep = clientStep + 1;
       setClientAnswers([...clientAnswers, currentUserMessage]);
-
       const aiReply = await fetchAIResponse(currentUserMessage);
       setMessages((prev) => [
         ...prev,
         { from: "bot", text: aiReply || "Уучлаарай, таны асуултыг ойлгосонгүй. Дахин оролдоно уу." },
       ]);
-      
+      setLoading(false);
       return;
     }
-
     // If bot just asked "Та хариулахад бэлэн үү?" and client says "тийм"
     if (
       messages[messages.length - 1]?.text.includes("Та хариулахад бэлэн үү?") &&
@@ -101,136 +104,112 @@ async function fetchAIResponse(message) {
         { from: "bot", text: clientQuestions[0] },
       ]);
       setClientStep(1);
-      return; // Prevent fallback message
+      setLoading(false);
+      return;
     }
-    
     const aiReply = await fetchAIResponse(currentUserMessage);
     setMessages((prev) => [
       ...prev,
       { from: "bot", text: aiReply || "Уучлаарай, таны асуултыг ойлгосонгүй. Дахин оролдоно уу." },
     ]);
+    setLoading(false);
   };
 
-  const sendMessage = async (userMessage) => {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: userMessage }),
-    });
-    const data = await res.json();
-    // Display data.choices[0].message.content in your chat UI
+  const handleInputKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   return (
     <>
       {/* Floating Chatbot Button */}
-      <button
-        onClick={() => setOpen(true)}
-        style={{
-          position: "fixed",
-          bottom: 30,
-          right: 30,
-          width: 60,
-          height: 60,
-          borderRadius: "50%",
-          background: "#2196f3",
-          color: "#fff",
-          border: "none",
-          boxShadow: "0 2px 8px #0002",
-          fontSize: 28,
-          zIndex: 1100,
-          cursor: "pointer",
-        }}
-        aria-label="Chatbot">
-        💬
-      </button>
+      <Tooltip content="Chat with us!" placement="left">
+        <button
+          onClick={() => setOpen(true)}
+          className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg flex items-center justify-center text-3xl z-50 hover:scale-110 transition-transform"
+          aria-label="Open chatbot"
+        >
+          <FaRobot />
+        </button>
+      </Tooltip>
 
       {/* Modal Chatbot Window */}
       {open && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: 100,
-            right: 30,
-            width: 340,
-            background: "#fff",
-            border: "1px solid #ccc",
-            borderRadius: 12,
-            boxShadow: "0 4px 24px #0003",
-            zIndex: 1200,
-            display: "flex",
-            flexDirection: "column",
-          }}>
+        <div className="fixed bottom-28 right-8 w-[350px] max-w-[95vw] bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 flex flex-col animate-fadeIn">
           {/* Modal Header */}
-          <div
-            style={{
-              padding: "12px 16px",
-              borderBottom: "1px solid #eee",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              background: "#2196f3",
-              color: "#fff",
-              borderTopLeftRadius: 12,
-              borderTopRightRadius: 12,
-            }}>
-            <span>AllUNeed Чатбот</span>
+          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-t-2xl">
+            <div className="flex items-center gap-2">
+              <Avatar icon={<FaRobot />} size="sm" className="bg-white text-blue-600" />
+              <span className="text-white font-bold text-lg">AllUNeed Чатбот</span>
+            </div>
             <button
               onClick={() => setOpen(false)}
-              style={{
-                background: "transparent",
-                border: "none",
-                color: "#fff",
-                fontSize: 20,
-                cursor: "pointer",
-              }}
-              aria-label="Close">
+              className="text-white text-2xl font-bold hover:text-gray-200 transition-colors"
+              aria-label="Close chatbot"
+            >
               ×
             </button>
           </div>
           {/* Chat Content */}
-          <div
-            style={{ maxHeight: 300, overflowY: "auto", padding: 10, flex: 1 }}>
+          <div className="flex-1 overflow-y-auto px-4 py-3 bg-gray-50" style={{ maxHeight: 400 }}>
             {messages.map((msg, i) => (
               <div
                 key={i}
-                style={{
-                  textAlign: msg.from === "user" ? "right" : "left",
-                  margin: "8px 0",
-                }}>
-                <span
-                  style={{
-                    background: msg.from === "user" ? "#e0f7fa" : "#f1f8e9",
-                    padding: "6px 12px",
-                    borderRadius: 16,
-                    display: "inline-block",
-                  }}>
+                className={`flex mb-2 ${msg.from === "user" ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`rounded-xl px-4 py-2 max-w-[80%] text-sm shadow-sm whitespace-pre-line ${
+                    msg.from === "user"
+                      ? "bg-blue-500 text-white self-end"
+                      : "bg-white text-gray-800 border border-gray-200 self-start"
+                  } animate-fadeIn`}
+                >
                   {msg.text}
-                </span>
+                </div>
               </div>
             ))}
+            {loading && (
+              <div className="flex justify-start mb-2">
+                <div className="rounded-xl px-4 py-2 bg-white border border-gray-200 text-gray-800 flex items-center gap-2 animate-pulse">
+                  <Spinner size="sm" color="primary" />
+                  <span>Бот бичиж байна...</span>
+                </div>
+              </div>
+            )}
+            <div ref={chatEndRef} />
           </div>
           {/* Input */}
-          <div style={{ display: "flex", borderTop: "1px solid #eee" }}>
-            <input
+          <form
+            className="flex items-center gap-2 border-t border-gray-200 px-4 py-3 bg-white rounded-b-2xl"
+            onSubmit={e => {
+              e.preventDefault();
+              handleSend();
+            }}
+            aria-label="Chat input area"
+          >
+            <Input
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              style={{ flex: 1, border: "none", padding: 8, outline: "none" }}
-              placeholder="Бичих..."
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleInputKeyDown}
+              placeholder="Таны асуултыг бичнэ үү..."
+              className="flex-1"
+              aria-label="Type your message"
+              disabled={loading}
+              autoFocus
             />
-            <button
-              onClick={handleSend}
-              style={{
-                padding: "0 16px",
-                border: "none",
-                background: "#2196f3",
-                color: "#fff",
-                borderRadius: "0 0 12px 0",
-              }}>
-              Илгээх
-            </button>
-          </div>
+            <Button
+              isIconOnly
+              color="primary"
+              variant="shadow"
+              type="submit"
+              aria-label="Send message"
+              disabled={loading || !input.trim()}
+            >
+              <FaPaperPlane />
+            </Button>
+          </form>
         </div>
       )}
       <ModalChatbot open={isModalOpen} onClose={() => setIsModalOpen(false)} />
