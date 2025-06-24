@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { AuthContext } from "@/context/auth/authContext";
 import ModalChatbot from "./modalChatbot";
 
 const clientQuestions = [
@@ -9,6 +10,9 @@ const clientQuestions = [
 ];
 
 const Chatbot = () => {
+  const { authState } = useContext(AuthContext);
+  if (!authState?.isLoggedIn) return null;
+
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
@@ -44,79 +48,77 @@ const Chatbot = () => {
   ];  
 // Call your backend endpoint to get OpenAI response
 async function fetchAIResponse(message) {
-  const response = await fetch('/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message }),
-  });
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message }),
+    });
 
-  const data = await response.json();
-  console.log('data==>', data); // This will log the backend response in your browser console
-  return data.reply;
+    if (!response.ok) {
+      // Handle HTTP errors like 404, 500 etc.
+      console.error("API call failed with status:", response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.reply;
+  } catch (error) {
+    // Handle network errors or JSON parsing errors
+    console.error("Fetch AI response error:", error);
+    return null;
+  }
 }
   
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    setMessages([...messages, { from: "user", text: input }]);
+    const currentUserMessage = input;
+    setMessages((prev) => [...prev, { from: "user", text: currentUserMessage }]);
+    setInput(""); // Clear input immediately for better UX
 
     // If in client question flow
     if (clientStep > 0 && clientStep <= clientQuestions.length) {
       const nextStep = clientStep + 1;
-      setClientAnswers([...clientAnswers, input]);
-      setTimeout(async () => {
-        const found = faq.find(
-      (f) => input.trim().toLowerCase() === f.question.toLowerCase()
-    );
-    if (found) {
-      setMessages((msgs) => [
-        ...msgs,
-        { from: "bot", text: found.answer },
-      ]);
-    } else {
-      // Call AI if not found in FAQ
-      const aiReply = await fetchAIResponse(input);
-      setMessages((msgs) => [
-        ...msgs,
+      setClientAnswers([...clientAnswers, currentUserMessage]);
+
+      const aiReply = await fetchAIResponse(currentUserMessage);
+      setMessages((prev) => [
+        ...prev,
         { from: "bot", text: aiReply || "Уучлаарай, таны асуултыг ойлгосонгүй. Дахин оролдоно уу." },
       ]);
-    }
-      }, 500);
-      setInput("");
+      
       return;
     }
 
-    setTimeout(() => {
-  // If bot just asked "Та хариулахад бэлэн үү?" and client says "тийм"
-  if (
-    messages[messages.length - 1]?.text ===
-      "Тиймээ чадна гэхдээ төлөвлөгөө боловсруулахын өмнө таниас хэдэн зүйлсийг тодруулах шаардлагатай. Та хариулахад бэлэн үү?" &&
-    input.trim().toLowerCase() === "тийм"
-  ) {
-    setMessages((msgs) => [
-      ...msgs,
-      { from: "bot", text: clientQuestions[0] },
+    // If bot just asked "Та хариулахад бэлэн үү?" and client says "тийм"
+    if (
+      messages[messages.length - 1]?.text.includes("Та хариулахад бэлэн үү?") &&
+      currentUserMessage.trim().toLowerCase() === "тийм"
+    ) {
+      setMessages((prev) => [
+        ...prev,
+        { from: "bot", text: clientQuestions[0] },
+      ]);
+      setClientStep(1);
+      return; // Prevent fallback message
+    }
+    
+    const aiReply = await fetchAIResponse(currentUserMessage);
+    setMessages((prev) => [
+      ...prev,
+      { from: "bot", text: aiReply || "Уучлаарай, таны асуултыг ойлгосонгүй. Дахин оролдоно уу." },
     ]);
-    setClientStep(1);
-    setInput("");
-    return; // Prevent fallback message
-  }
+  };
 
-  const found = faq.find(
-    (f) => input.trim().toLowerCase() === f.question.toLowerCase()
-  );
-  setMessages((msgs) => [
-    ...msgs,
-    {
-      from: "bot",
-      text: found
-        ? found.answer
-        : "Уучлаарай, таны асуултыг ойлгосонгүй. Дахин оролдоно уу.",
-    },
-  ]);
-  setInput("");
-}, 500);
-    setInput("");
+  const sendMessage = async (userMessage) => {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userMessage }),
+    });
+    const data = await res.json();
+    // Display data.choices[0].message.content in your chat UI
   };
 
   return (
