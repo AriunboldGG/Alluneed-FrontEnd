@@ -1,7 +1,6 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Hero from "@/components/Hero";
 import { AuthContext } from "@/context/auth/authContext";
 import { getcookie } from "@/service/utils";
 import { enqueueSnackbar } from "notistack";
@@ -119,7 +118,6 @@ const Index = () => {
   return (
     <>
       <div className="relative">
-        <Hero imageUrl={"/assets/photo/blogs.png"} />
         <div className="absolute top-[40%] left-[20%]">
           <p className="text-[12px] font-[500] leading-[18px] text-[#8557F4] mb-[12px]">
             Зам дагуу

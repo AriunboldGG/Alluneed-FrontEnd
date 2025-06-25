@@ -1,7 +1,6 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Hero from "@/components/Hero";
 import Dropdown from "@/components/Dropdown/index";
 import { AuthContext } from "@/context/auth/authContext";
 import { getcookie } from "@/service/utils";
@@ -119,23 +118,6 @@ const Index = () => {
 
   return (
     <>
-      <div className="relative">
-        <Hero imageUrl={"/assets/photo/blogs.png"} />
-        <div className="absolute top-[40%] left-[20%]">
-          <p className="text-[12px] font-[500] leading-[18px] text-[#8557F4] mb-[12px]">
-            OOH
-          </p>
-          <p className="text-[36px] font-[500] leading-[40px] tracking-[-1.44px] text-[#050514] mb-[24px]">
-            Hottest{" "}
-            <span className="text-[36px] font-[700] leading-[40px] tracking-[-1.44px] text-[#050514]">
-              Channels
-            </span>
-          </p>
-          <p className="text-[16px] font-[400] leading-[28px] text-[#475467]">
-            Хамгийн сүүлийн үеийн салбарын мэдээ, ярилцлага, технологи, нөөц.
-          </p>
-        </div>
-      </div>
       <AgencyLayout>
         <div className="flex w-[100%] justify-between mb-[32px]">
           <div className="h-[44px] p-[4px] flex gap-[8px] rounded-[8px] border-[1px] border-[#F2F4F7] border-[solid] bg-[#F2F4F7] mt-[48px]">

@@ -97,9 +97,14 @@ const Index = () => {
 
   return (
     <>
-      <div className='relative'>
-        <Hero imageUrl={'/assets/photo/blogs.png'} />
-        <div className='absolute top-[40%] left-[20%] z-[11] max-lg:hidden'>
+      <div className='relative w-full h-[320px] flex items-center overflow-hidden'>
+        {/* SVG Background */}
+        <img
+          src='/assets/svg/news-header.svg'
+          alt='News Header Background'
+          className='absolute inset-0 w-full h-full object-cover z-0 pointer-events-none'
+        />
+        <div className='relative z-10 pl-8 md:pl-32'>
           <p className='text-[12px] font-[500] leading-[18px] text-[#8557F4] mb-[12px]'>
             News
           </p>

@@ -29,7 +29,6 @@ const Index = () => {
     return (
         <>
             <div className='relative'>
-                <Hero imageUrl={'/assets/photo/blogs.png'} />
                 <div className='absolute top-[40%] left-[20%]'>
                     <p className='text-[12px] font-[500] leading-[18px] text-[#8557F4] mb-[12px]'>Marketers</p>
                     <p className='text-[36px] font-[500] leading-[40px] tracking-[-1.44px] text-[#050514] mb-[24px]'>

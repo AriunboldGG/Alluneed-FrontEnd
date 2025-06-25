@@ -20,9 +20,9 @@ const Index = ({ data, catName }) => {
             {(() => {
               switch (catName) {
                 case "TV":
-                  return <ChannelsBlock item={item} index={i} />;
+                  return <ChannelsBlock item={item} index={i} catName={catName} />;
                 case "FM":
-                  return <ChannelsBlock item={item} index={i} />;
+                  return <ChannelsBlock item={item} index={i} catName={catName} />;
                 case "OOH":
                   return <LedsBlock item={item} index={i} />;
                 case "decaux":
@@ -41,7 +41,7 @@ const Index = ({ data, catName }) => {
                   return <Newspaper />
 
                 default:
-                  return <ChannelsBlock item={item} index={i} />; // or some default component
+                  return <ChannelsBlock item={item} index={i} catName={catName} />; // or some default component
               }
             })()}
           </div>

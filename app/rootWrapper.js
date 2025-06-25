@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import LoadingScreen from './Loading';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import Chatbot from '@/components/Chatbot';
 
 export default function ParentWrapper({ children }) {
     const { authFunc, authState, authDispatch } = Api();
@@ -27,6 +28,7 @@ export default function ParentWrapper({ children }) {
                     <>
                         {children}
                         <ToastContainer />
+                        <Chatbot />
                     </>
                 )}
             </AuthContext.Provider>

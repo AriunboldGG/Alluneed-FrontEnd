@@ -1,7 +1,6 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Hero from "@/components/Hero";
 import Dropdown from "@/components/Dropdown/index";
 import { AuthContext } from "@/context/auth/authContext";
 import { getcookie } from "@/service/utils";
@@ -117,23 +116,24 @@ const Index = () => {
 
   return (
     <>
-      <div className="relative">
-        <Hero imageUrl={"/assets/photo/blogs.png"} />
-        <div className="absolute top-[40%] left-[20%]">
-          <p className="text-[12px] font-[500] leading-[18px] text-[#8557F4] mb-[12px]">
-            Channels
-          </p>
-          <p className="text-[36px] font-[500] leading-[40px] tracking-[-1.44px] text-[#050514] mb-[24px]">
-            Hottest{" "}
-            <span className="text-[36px] font-[700] leading-[40px] tracking-[-1.44px] text-[#050514]">
-              Channels
-            </span>
-          </p>
-          <p className="text-[16px] font-[400] leading-[28px] text-[#475467]">
+      {/* Full-width TV Page Header */}
+      <div className="relative w-full h-[260px] md:h-[340px] overflow-hidden flex items-center">
+        {/* SVG Background */}
+        <img
+          src="/assets/svg/tv-top.svg"
+          alt="TV Header Background"
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+        />
+        {/* Left text */}
+        <div className="relative z-10 pl-8 md:pl-32 flex-1">
+          <p className="text-[#8557F4] text-sm font-medium mb-3">Campaigns</p>
+          <h1 className="text-white text-3xl md:text-5xl font-bold mb-4">Marketing campaigns</h1>
+          <p className="text-[#EAECF0] text-base md:text-lg">
             Хамгийн сүүлийн үеийн салбарын мэдээ, ярилцлага, технологи, нөөц.
           </p>
         </div>
       </div>
+      {/* Main content inside AgencyLayout */}
       <AgencyLayout>
         <div className="flex w-[100%] justify-between mb-[32px]">
           <div className="h-[44px] p-[4px] flex gap-[8px] rounded-[8px] border-[1px] border-[#F2F4F7] border-[solid] bg-[#F2F4F7] mt-[48px]">

@@ -1,166 +1,85 @@
 import { BASE_URL } from "@/service/path";
-import {  useState } from "react";
+import { useState } from "react";
 import Modal from "./TV/modal";
-const Index = ({ item, index }) => {
+
+const channelImages = [
+  "/assets/channels/1.png",
+  "/assets/channels/2.png",
+  "/assets/channels/3.png",
+  "/assets/channels/4.png",
+  "/assets/channels/5.png",
+  "/assets/channels/6.png",
+];
+
+const Index = ({ item, index, catName }) => {
   const [openModal, setOpenModal] = useState(false);
   const [data, setData] = useState(null);
 
+  // Use static image for TV list, fallback to item image otherwise
+  const imageUrl = catName === "TV"
+    ? channelImages[index % channelImages.length]
+    : (item?.image?.file_name ? BASE_URL + "/file/" + item?.image?.file_name : channelImages[0]);
+
   return (
-    <div className="flex flex-row min-h-[400px] w-full p-3 justify-around space-x-3">
-      <div className="h-full justify-center flex">
+    <div className="flex flex-row items-center bg-white rounded-xl shadow-md p-6 mb-6 w-full min-h-[160px] hover:shadow-lg transition-shadow">
+      {/* Image */}
+      <div className="flex-shrink-0 w-28 h-28 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center">
         <img
-          alt=""
-          src={BASE_URL + "/file/" + item?.image?.file_name}
-          className="size-32 rounded-full object-cover justify-center flex align-middle text-center content-center mt-12"
+          alt={item?.name || "TV Channel"}
+          src={imageUrl}
+          className="object-cover w-full h-full"
         />
       </div>
-      <div className="flex flex-col space-y-3 text-center align-middle justify-center">
-        <div className="flex flex-row text-2xl">
-          <div>{index + 1 + "."}</div>
-          <div>&nbsp;</div>
-          <div>{item?.name}</div>
+      {/* Details */}
+      <div className="flex flex-col flex-1 px-6 gap-2">
+        {/* TV Name */}
+        <div className="text-xl font-bold text-gray-900 mb-1">{item?.name}</div>
+        {/* Location */}
+        <div className="text-sm text-gray-500 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          <span>{item?.address || "Байршил мэдээлэл байхгүй"}</span>
         </div>
-        <div className="flex flex-row space-x-2 text-gray-400">
-          <div>
-            <a
-              className="text-muted inline-flex items-center rounded-lg  text-sm focus:outline-none  dark:text-gray-400"
-              aria-label="Instagram"
-              href="#">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="h-5 w-5">
-                <path d="M4 4m0 4a4 4 0 0 1 4 -4h8a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4z"></path>
-                <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
-                <path d="M16.5 7.5l0 .01"></path>
-              </svg>
+        {/* Social Links */}
+        <div className="flex items-center gap-4 mt-1">
+          {item?.social_links?.instagram && (
+            <a href={item.social_links.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-pink-500"><rect width="20" height="20" x="2" y="2" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>
             </a>
-          </div>
-          <div>{item?.description}</div>
-        </div>
-        <div className="flex flex-row space-x-2 text-gray-400">
-          <div>
-            <a
-              className="text-muted inline-flex items-center rounded-lg  text-sm focus:outline-none  dark:text-gray-400"
-              aria-label="Instagram"
-              href="#">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="h-5 w-5">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z"
-                />
-              </svg>
+          )}
+          {item?.social_links?.facebook && (
+            <a href={item.social_links.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-blue-600"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
             </a>
-          </div>
-          <div>{item?.email}</div>
-        </div>
-        <div className="flex flex-row space-x-2 text-gray-400">
-          <div>
-            <a
-              className="text-muted inline-flex items-center rounded-lg  text-sm focus:outline-none  dark:text-gray-400"
-              aria-label="Instagram"
-              href="#">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="h-5 w-5">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
-                />
-              </svg>
+          )}
+          {item?.social_links?.youtube && (
+            <a href={item.social_links.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="text-red-500"><path d="M21.8 8.001a2.75 2.75 0 00-1.94-1.94C18.07 6 12 6 12 6s-6.07 0-7.86.06a2.75 2.75 0 00-1.94 1.94A28.7 28.7 0 002 12a28.7 28.7 0 00.2 3.999 2.75 2.75 0 001.94 1.94C5.93 18 12 18 12 18s6.07 0 7.86-.06a2.75 2.75 0 001.94-1.94A28.7 28.7 0 0022 12a28.7 28.7 0 00-.2-3.999zM10 15V9l5 3-5 3z"/></svg>
             </a>
+          )}
+        </div>
+        {/* Average Views & Univision Number */}
+        <div className="flex gap-8 mt-2">
+          <div className="flex flex-col">
+            <span className="text-xs text-gray-400">Өдрийн дундаж үзэлт</span>
+            <span className="font-semibold text-base text-gray-800">{item?.tv_daily_avg_views || "-"}</span>
           </div>
-          <div>{item?.address}</div>
+          <div className="flex flex-col">
+            <span className="text-xs text-gray-400">Univision дугаар</span>
+            <span className="font-semibold text-base text-gray-800">{item?.tv_univision_number || "-"}</span>
+          </div>
         </div>
-        <div>
-
-        </div>
+      </div>
+      {/* View Button */}
+      <div className="flex flex-col items-end justify-center h-full">
         <button
           onClick={() => (setOpenModal(true), setData(item))}
-          className="inline-block rounded border border-indigo-600 bg-indigo-600 px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-indigo-600 focus:outline-none focus:ring w-full max-w-[250px] active:text-indigo-500 text-center "
-          href="#">
-          Дэлгэрэнгүй харах
+          className="bg-gradient-to-r from-[#8557F4] to-[#3E2E92] text-white font-semibold rounded-lg px-6 py-2 shadow hover:from-[#6c3fd1] hover:to-[#2a1e6b] transition-colors"
+        >
+          Үзэх
         </button>
       </div>
-
-      <div className="flex flex-col space-y-3 justify-center">
-        {/* Dundaj vzelt */}
-        <a
-          href="#"
-          className="block rounded-lg p-4 shadow-sm shadow-indigo-100">
-          <div className="mt-2">
-            <dl>
-              <div>
-                <dd className="text-sm text-gray-500">Өдрийн дундаж үзэлт</dd>
-              </div>
-              <div>
-                <dd className="font-medium flex flex-row space-x-2">
-                  <div>{item?.tv_daily_avg_views}</div>
-                </dd>
-              </div>
-            </dl>
-          </div>
-        </a>
-        {/* Univision number  */}
-        <a
-          href="#"
-          className="block rounded-lg p-4 shadow-sm shadow-indigo-100">
-          <div className="mt-2">
-            <dl>
-              <div>
-                <dt className="sr-only">Price</dt>
-
-                <div className="text-sm text-gray-500 flex flex-row space-x-2">
-                  Univision дугаар
-                </div>
-              </div>
-
-              <div>
-                <dd className="font-medium flex flex-row space-x-2">
-                  <div>{item?.tv_univision_number}</div>
-                </dd>
-              </div>
-            </dl>
-          </div>
-        </a>
-      </div>
-      <Modal 
-      open={openModal} 
-      onClose={() => setOpenModal(false)} />
-    
-    
+      {/* Modal */}
+      <Modal open={openModal} onClose={() => setOpenModal(false)} />
     </div>
   );
 };

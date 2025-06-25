@@ -3,6 +3,39 @@ import AuthReducer from '@/context/auth/authReducer';
 import axios from 'axios';
 import { setcookie, getcookie, removeCookie } from '@/service/utils';
 import { BASE_URL } from './path';
+import { toast } from 'react-toastify';
+import { mockAuth, mockAPI } from './mockAuth';
+import { USE_MOCK_BACKEND } from '@/config/auth';
+
+// Function to show expired access toast
+const toastExpireAccess = () => {
+    toast('Таны нэвтрэх хугацаа дууслаа. Дахин нэвтэрнэ үү.', {
+        position: 'top-right',
+        autoClose: 3000,
+        type: 'warning',
+    });
+};
+
+// Function to clean and validate token
+const cleanToken = (token) => {
+    if (!token) return null;
+    
+    // Remove any whitespace
+    let cleanedToken = token.trim();
+    
+    // Remove surrounding quotes if they exist
+    if (cleanedToken.startsWith('"') && cleanedToken.endsWith('"')) {
+        cleanedToken = cleanedToken.slice(1, -1);
+    }
+    
+    // Remove any newlines or extra spaces
+    cleanedToken = cleanedToken.replace(/\s+/g, '');
+    
+    console.log('Cleaned token:', cleanedToken);
+    console.log('Cleaned token length:', cleanedToken.length);
+    
+    return cleanedToken;
+};
 
 export const Api = () => {
     const initialState = {
@@ -18,24 +51,20 @@ export const Api = () => {
 
     const [state, dispatch] = useReducer(AuthReducer, initialState);
 
-    useEffect(() => {
-        const tk = getcookie('token');
-        if (tk) {
-            handlers.getUserData();
-            dispatch({ type: 'IS_LOGGED_IN', payload: { isLoggedIn: true } });
-        }
-    }, [state.userToken]);
-
     const handlers = useMemo(
         () => ({
             //хэрэглэгчийн нэвтрэх
             signIn: async (data) => {
+                console.log('Signing in with token:', data);
                 let payload = {
                     token: data,
                     isLoggedIn: true,
                 };
                 dispatch({ type: 'IS_LOGGED_IN', payload });
                 setcookie(data);
+                console.log('Token stored in cookie');
+                // Immediately fetch and set user data
+                await handlers.getUserData();
             },
 
             //хэрэглэгч гарах
@@ -50,29 +79,46 @@ export const Api = () => {
 
             getUserData: () => {
                 let data = getcookie('token');
-                if (typeof data === 'string') {
-                    let dataParsed = JSON.parse(data);
-                    axios
-                        .get(
-                            `${BASE_URL}/users/me`,
-
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${dataParsed}`,
-                                },
-                            }
-                        )
-                        .then((res) => {
-                            if (res?.status === 200 && res?.data?.response_code === 200) {
-                                dispatch({ type: 'SET_USER', payload: res?.data?.data });
-                            } else {
+                if (data) {
+                    data = cleanToken(data);
+                    
+                    if (USE_MOCK_BACKEND) {
+                        // Use mock authentication
+                        mockAuth.getUserData(data)
+                            .then((res) => {
+                                if (res?.response_code === 200) {
+                                    dispatch({ type: 'SET_USER', payload: res?.data });
+                                } else {
+                                    removeCookie();
+                                }
+                            })
+                            .catch((err) => {
+                                console.error('Mock getUserData error:', err);
                                 removeCookie();
-                            }
-                        })
-                        .catch((err) => {
-                            removeCookie();
-                            return;
-                        });
+                            });
+                    } else {
+                        // Use real backend
+                        axios
+                            .get(
+                                `${BASE_URL}/users/me`,
+                                {
+                                    headers: {
+                                        Authorization: `Bearer ${data}`,
+                                    },
+                                }
+                            )
+                            .then((res) => {
+                                if (res?.status === 200 && res?.data?.response_code === 200) {
+                                    dispatch({ type: 'SET_USER', payload: res?.data?.data });
+                                } else {
+                                    removeCookie();
+                                }
+                            })
+                            .catch((err) => {
+                                removeCookie();
+                                return;
+                            });
+                    }
                 } else {
                     removeCookie();
                 }
@@ -80,20 +126,34 @@ export const Api = () => {
 
             GET: async (url, isToken = false, contentType = 'application/json', responseType = 'json') => {
                 try {
-                    let tk = getcookie('token');
-                    let dataParsed = JSON.parse(tk);
-                    return instance.get(
-                        url,
-                        isToken
-                            ? {
-                                  headers: {
-                                      Authorization: `Bearer ${dataParsed}`,
-                                      'Content-Type': contentType,
-                                  },
-                                  responseType,
-                              }
-                            : ''
-                    );
+                    if (USE_MOCK_BACKEND) {
+                        // Use mock API
+                        return await mockAPI.get(url);
+                    } else {
+                        // Use real backend
+                        let tk = getcookie('token');
+                        
+                        if (isToken && !tk) {
+                            throw new Error('No token found');
+                        }
+                        
+                        if (isToken) {
+                            tk = cleanToken(tk);
+                        }
+                        
+                        return instance.get(
+                            url,
+                            isToken
+                                ? {
+                                      headers: {
+                                          Authorization: `Bearer ${tk}`,
+                                          'Content-Type': contentType,
+                                      },
+                                      responseType,
+                                  }
+                                : ''
+                        );
+                    }
                 } catch (e) {
                     if (e?.response?.status === 401) {
                         handlers.logOut();
@@ -105,25 +165,75 @@ export const Api = () => {
 
             POST: async (url, isToken = false, data, contentType = 'application/json', responseType = 'json') => {
                 try {
-                    let tk = getcookie('token');
-                    let dataParsed = JSON.parse(tk);
-                    let response = await instance.post(
-                        url,
-                        data,
-                        isToken
-                            ? {
-                                  headers: {
-                                      Authorization: `Bearer ${dataParsed}`,
-                                      'Content-Type': contentType,
-                                  },
-                                  responseType,
-                              }
-                            : ''
-                    );
-                    if (response?.status === 200 && response?.data) {
-                        return response.data;
+                    if (USE_MOCK_BACKEND) {
+                        // Use mock API
+                        const response = await mockAPI.post(url, data);
+                        return response;
+                    } else {
+                        // Use real backend
+                        let tk = getcookie('token');
+                        
+                        if (isToken && !tk) {
+                            console.error('No token found for authenticated request:', url);
+                            throw new Error('No token found');
+                        }
+                        
+                        console.log('Making POST request to:', url, 'with token:', isToken ? 'Yes' : 'No');
+                        if (isToken) {
+                            console.log('Original token:', tk);
+                            tk = cleanToken(tk);
+                            console.log('Token being sent:', tk);
+                            console.log('Token type:', typeof tk);
+                            console.log('Token length:', tk ? tk.length : 0);
+                        }
+                        
+                        let response = await instance.post(
+                            url,
+                            data,
+                            isToken
+                                ? {
+                                      // Try without Bearer prefix first, if that fails, try with Bearer
+                                      headers: {
+                                          Authorization: tk,
+                                          'Content-Type': contentType,
+                                      },
+                                      responseType,
+                                  }
+                                : ''
+                        );
+                        if (response?.status === 200 && response?.data) {
+                            return response.data;
+                        }
                     }
                 } catch (e) {
+                    console.error('POST request failed:', url, e);
+                    
+                    if (!USE_MOCK_BACKEND && isToken && e?.response?.status === 401) {
+                        // If the first attempt failed, try with Bearer prefix
+                        try {
+                            let tk = cleanToken(getcookie('token'));
+                            console.log('Retrying with Bearer prefix');
+                            let response = await instance.post(
+                                url,
+                                data,
+                                {
+                                    headers: {
+                                        Authorization: `Bearer ${tk}`,
+                                        'Content-Type': contentType,
+                                    },
+                                    responseType,
+                                }
+                            );
+                            if (response?.status === 200 && response?.data) {
+                                return response.data;
+                            }
+                        } catch (retryError) {
+                            console.error('Retry also failed:', retryError);
+                            handlers.logOut();
+                            toastExpireAccess();
+                        }
+                    }
+                    
                     if (e?.response?.status === 401) {
                         handlers.logOut();
                         toastExpireAccess();
@@ -136,19 +246,25 @@ export const Api = () => {
 
             PUT: async (url, isToken = false, data) => {
                 try {
-                    let response = await instance.put(
-                        url,
-                        data,
-                        isToken
-                            ? {
-                                  headers: {
-                                      Authorization: `Bearer ${state.userToken}`,
-                                  },
-                              }
-                            : ''
-                    );
-                    if (response?.status === 200 && response?.data) {
-                        return response.data;
+                    if (USE_MOCK_BACKEND) {
+                        // Mock PUT - return success
+                        return { response_code: 200, data: 'Updated successfully' };
+                    } else {
+                        // Use real backend
+                        let response = await instance.put(
+                            url,
+                            data,
+                            isToken
+                                ? {
+                                      headers: {
+                                          Authorization: `Bearer ${state.userToken}`,
+                                      },
+                                  }
+                                : ''
+                        );
+                        if (response?.status === 200 && response?.data) {
+                            return response.data;
+                        }
                     }
                 } catch (e) {
                     if (e?.response?.status === 401) {
@@ -163,19 +279,25 @@ export const Api = () => {
 
             DELETE: async (url, isToken = false, responseType = 'json') => {
                 try {
-                    let response = await instance.delete(
-                        url,
-                        isToken
-                            ? {
-                                  headers: {
-                                      Authorization: `Bearer ${state.userToken}`,
-                                  },
-                                  responseType,
-                              }
-                            : ''
-                    );
-                    if (response?.status === 200 && response?.data) {
-                        return response.data;
+                    if (USE_MOCK_BACKEND) {
+                        // Mock DELETE - return success
+                        return { response_code: 200, data: 'Deleted successfully' };
+                    } else {
+                        // Use real backend
+                        let response = await instance.delete(
+                            url,
+                            isToken
+                                ? {
+                                      headers: {
+                                          Authorization: `Bearer ${state.userToken}`,
+                                      },
+                                      responseType,
+                                  }
+                                : ''
+                        );
+                        if (response?.status === 200 && response?.data) {
+                            return response.data;
+                        }
                     }
                 } catch (e) {
                     if (e?.response?.status === 401) {
@@ -190,5 +312,14 @@ export const Api = () => {
         }),
         [state]
     );
+
+    useEffect(() => {
+        const tk = getcookie('token');
+        if (tk) {
+            handlers.getUserData();
+            dispatch({ type: 'IS_LOGGED_IN', payload: { token: tk, isLoggedIn: true } });
+        }
+    }, []);
+
     return { authFunc: handlers, authState: state, authDispatch: dispatch };
 };

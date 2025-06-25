@@ -1,13 +1,11 @@
 "use client";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Hero from "@/components/Hero";
 import Dropdown from "@/components/Dropdown/index";
-import { AuthContext } from "@/context/auth/authContext";
-import { getcookie } from "@/service/utils";
-import { enqueueSnackbar } from "notistack";
 import ChannelsList from "@/module/influncer/template/channels";
 import AgencyLayout from "@/module/agency/layout/main";
+import axios from "axios";
+import { BASE_URL } from "@/service/path";
 
 const Index = () => {
   const [filter, setFilter] = useState(null);
@@ -19,11 +17,8 @@ const Index = () => {
   const [ref, setRef] = useState([]);
   const [catName, setCatName] = useState('');
 
-  const {
-    authFunc: { POST },
-  } = useContext(AuthContext);
-
   const router = useRouter();
+  
   useEffect(() => {
     getList();
   }, [activeRole, filter]);
@@ -52,12 +47,13 @@ const Index = () => {
       sort: "created_at desc",
     };
 
-    POST("channel/list", true, pagination)
+    axios
+      .post(`${BASE_URL}/channel/list`, pagination)
       .then((result) => {
         setData(result?.data);
       })
       .catch((err) => {
-        return;
+        console.error('Error fetching channels:', err);
       })
       .finally(() => {
         setLoader(false);
@@ -65,11 +61,6 @@ const Index = () => {
   };
 
   const getRef = () => {
-    const tk = getcookie("token");
-    if (!tk) {
-      enqueueSnackbar("Та эхлээд нэвтрэн үү", "warning");
-    }
-
     setLoader(true);
 
     let FilterPagination = {
@@ -94,12 +85,13 @@ const Index = () => {
       sort: "created_at desc",
     };
 
-    POST("reference/list", true, FilterPagination)
+    axios
+      .post(`${BASE_URL}/reference/list`, FilterPagination)
       .then((result) => {
         setRef(result?.data);
       })
       .catch((err) => {
-        return;
+        console.error('Error fetching references:', err);
       })
       .finally(() => {
         setLoader(false);
@@ -113,28 +105,10 @@ const Index = () => {
   const handleFilterChange = (id, name) => {
     setFilter(id);
     setCatName(name);
-
   };
 
   return (
     <>
-      <div className="relative">
-        <Hero imageUrl={"/assets/photo/blogs.png"} />
-        <div className="absolute top-[40%] left-[20%]">
-          <p className="text-[12px] font-[500] leading-[18px] text-[#8557F4] mb-[12px]">
-            Channels
-          </p>
-          <p className="text-[36px] font-[500] leading-[40px] tracking-[-1.44px] text-[#050514] mb-[24px]">
-            Hottest{" "}
-            <span className="text-[36px] font-[700] leading-[40px] tracking-[-1.44px] text-[#050514]">
-              Channels
-            </span>
-          </p>
-          <p className="text-[16px] font-[400] leading-[28px] text-[#475467]">
-            Хамгийн сүүлийн үеийн салбарын мэдээ, ярилцлага, технологи, нөөц.
-          </p>
-        </div>
-      </div>
       <AgencyLayout>
         <div className="flex w-[100%] justify-between mb-[32px]">
         <div className="h-[44px] p-[4px] flex gap-[8px] rounded-[8px] border-[1px] border-[#F2F4F7] border-[solid] bg-[#F2F4F7] mt-[48px]">
@@ -146,8 +120,7 @@ const Index = () => {
           ? 'bg-[#FFF] shadow-md'  // Styles for active tab
           : 'hover:bg-[#FFF]'      // Styles for inactive tabs
       }`}
-      onClick={() => handleFilterChange(i.ID, i.name, console.log('catId==>', i.ID)
-      )}
+      onClick={() => handleFilterChange(i.ID, i.name)}
     >
       <p className={`text-[14px] font-[600] leading-[20px] ${
         filter === i.ID ? 'text-[#000]' : 'text-[#333]'

@@ -71,37 +71,84 @@ const Modal = ({ open, onClose }) => {
     { ageRange: "65+", gender: "Female", value: 30 },
   ];
 
+  // Insights placeholder data
+  const insights = {
+    reach: 120000,
+    costPerPerson: 35_000,
+    totalCost: 4_200_000,
+    compareAvg: "2x илүү үзэлттэй",
+  };
+
+  const locationOptions = [
+    { name: "Орхон", value: 30 },
+    { name: "Төв", value: 20 },
+    { name: "Улаанбаатар", value: 50 },
+    { name: "Дархан", value: 40 },
+    { name: "Сэлэнгэ", value: 25 },
+  ];
+  const [selectedLocation, setSelectedLocation] = useState('Бүх байршил');
+
+  // Chart data: all locations or just the selected one
+  const chartData = selectedLocation === 'Бүх байршил'
+    ? locationOptions
+    : locationOptions.filter(loc => loc.name === selectedLocation);
+
+  const [calculatedInsights, setCalculatedInsights] = useState(insights);
+
+  function calculateInsights() {
+    // Example calculation logic (replace with real logic as needed)
+    let base = 100000;
+    let loc = locationOptions.find(l => l.name === selectedLocation);
+    let reach = selectedLocation === 'Бүх байршил' ? 120000 : (loc ? loc.value * 2000 : base);
+    let costPerPerson = 35000 + Number(selectedDuration) * 10 + Number(selectedTime) * 5;
+    let totalCost = reach * costPerPerson / 1000;
+    let compareAvg = selectedLocation === 'Улаанбаатар' ? '2x илүү үзэлттэй' : '1x';
+    setCalculatedInsights({
+      reach,
+      costPerPerson,
+      totalCost,
+      compareAvg,
+    });
+  }
+
   return (
-    <div onClick={onClose} className="overlay">
+    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
       <div
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-        className="modalContainer tv">
-        <div className="modalLeft">
-          <div className="content">
-            {/* // reclam tsatsah */}
-            <div className="reclamTime">
-              <span className="reclamTitle">Реклам цацах цаг</span>
-              <p
-                onClick={() => handleChoiceClick("17:00 - 00:00")}
-                className={`choice ${
-                  selectedChoice === "17:00 - 00:00" ? "selected" : ""
-                }`}>
-                17:00 - 00:00
-              </p>
-              <p
-                onClick={() => handleChoiceClick("Бусад")}
-                className={`choice ${
-                  selectedChoice === "Бусад" ? "selected" : ""
-                }`}>
-                Бусад
-              </p>
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-xl shadow-lg w-full max-w-5xl p-8 relative flex flex-col"
+      >
+        <button
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold"
+          onClick={onClose}
+        >
+          ×
+        </button>
+        {/* 2 columns */}
+        <div className="flex flex-col md:flex-row gap-8 mb-8">
+          {/* Left column */}
+          <div className="flex-1 space-y-6">
+            {/* // реклам цацах */}
+            <div>
+              <span className="font-semibold text-gray-700 block mb-2">Реклам цацах цаг</span>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => handleChoiceClick("17:00 - 00:00")}
+                  className={`px-4 py-2 rounded-lg border ${selectedChoice === "17:00 - 00:00" ? "bg-indigo-100 border-indigo-500" : "bg-gray-50 border-gray-200"}`}
+                >
+                  17:00 - 00:00
+                </button>
+                <button
+                  onClick={() => handleChoiceClick("Бусад")}
+                  className={`px-4 py-2 rounded-lg border ${selectedChoice === "Бусад" ? "bg-indigo-100 border-indigo-500" : "bg-gray-50 border-gray-200"}`}
+                >
+                  Бусад
+                </button>
+              </div>
             </div>
-            {/* Vregljleh hugatsaa select */}
-            <div className="reclamTime">
-              <span className="reclamTitle">Рекламны үргэлжлэх хугацаа</span>
-              <select value={selectedDuration} onChange={handleDurationChange}>
+            {/* Үргэлжлэх хугацаа select */}
+            <div>
+              <span className="font-semibold text-gray-700 block mb-2">Рекламны үргэлжлэх хугацаа</span>
+              <select value={selectedDuration} onChange={handleDurationChange} className="w-full border rounded-lg px-3 py-2">
                 {[...Array(240).keys()].map((i) => (
                   <option key={i + 1} value={i + 1}>
                     {i + 1} секунд
@@ -109,9 +156,10 @@ const Modal = ({ open, onClose }) => {
                 ))}
               </select>
             </div>
-            <div className="reclamTime">
-              <span className="reclamTitle">Өдөрт гарах давтамж</span>
-              <select value={selectedTime} onChange={handleTimeChange}>
+            {/* Өдөрт гарах давтамж */}
+            <div>
+              <span className="font-semibold text-gray-700 block mb-2">Өдөрт гарах давтамж</span>
+              <select value={selectedTime} onChange={handleTimeChange} className="w-full border rounded-lg px-3 py-2">
                 {[...Array(30).keys()].map((i) => (
                   <option key={i + 1} value={i + 1}>
                     {i + 1} удаа
@@ -119,25 +167,27 @@ const Modal = ({ open, onClose }) => {
                 ))}
               </select>
             </div>
-
-           
           </div>
-        </div>
-        <div className="modalRight">
-          <div className="content">
-            <div className="reclamTime statisticChart">
-              <span className="reclamTitle">Top locations:</span>
+          {/* Right column */}
+          <div className="flex-1 space-y-6">
+            <div>
+              <span className="font-semibold text-gray-700 block mb-2">Их үзэлттэй байршил</span>
+              <select
+                className="mb-4 border rounded-lg px-3 py-2"
+                value={selectedLocation}
+                onChange={e => setSelectedLocation(e.target.value)}
+              >
+                <option value="Бүх байршил">Бүх байршил</option>
+                {locationOptions.map(loc => (
+                  <option key={loc.name} value={loc.name}>{loc.name}</option>
+                ))}
+              </select>
               <StatisticsChart
-                data={data}
-                selectedCountry={selectedCountry}
-                selectedCity={selectedCity}
-                setSelectedCountry={setSelectedCountry}
-                setSelectedCity={setSelectedCity}
+                data={chartData}
               />
             </div>
-             {/* //Date Picker */}
-             <div className="reclamTime">
-              <span className="reclamTitle">Цацах хоногийн тоо</span>
+            <div>
+              <span className="font-semibold text-gray-700 block mb-2">Цацах хоногийн тоо</span>
               <DateRangePicker
                 startDate={startDate}
                 setStartDate={setStartDate}
@@ -145,44 +195,31 @@ const Modal = ({ open, onClose }) => {
                 setEndDate={setEndDate}
               />
             </div>
+            <button
+              className="mt-2 bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
+              onClick={calculateInsights}
+            >
+              Тооцоолох
+            </button>
           </div>
         </div>
-        <div className="modalRight">
-          <p className="closeBtn" onClick={onClose}>
-            X
-          </p>
-          <div className="content">
-          <div className="reclamTime">
-              <span className="reclamTitle">Насны ангилал: </span>
-              <AgeRangeChart data={dataAge}/>
-              <div>
-                <label>
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="man"
-                    checked={gender === "man"}
-                    onChange={() => setGender("man")}
-                  />
-                  Эрэгтэй
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="woman"
-                    checked={gender === "woman"}
-                    onChange={() => setGender("woman")}
-                  />
-                  Эмэгтэй
-                </label>
-              </div>
-            </div>
-            <div className="reclamTime">
-              <span className="reclamTitle">Хүйсийн харьцаа: </span>
-
-              <GenderPieChart data={ageData} />
-            </div>
+        {/* Bottom section: Insights */}
+        <div className="mt-6 border-t pt-6 grid grid-cols-1 md:grid-cols-4 gap-6 bg-gray-50 rounded-lg p-6">
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-gray-500 mb-1">Нийт хүртээмж</span>
+            <span className="text-lg font-bold text-indigo-700">{calculatedInsights.reach.toLocaleString()}</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-gray-500 mb-1">Нэг хүнд хүрч буй зардал</span>
+            <span className="text-lg font-bold text-indigo-700">{calculatedInsights.costPerPerson.toLocaleString()} ₮</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-gray-500 mb-1">Нийт зардал</span>
+            <span className="text-lg font-bold text-indigo-700">{calculatedInsights.totalCost.toLocaleString()} ₮</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-gray-500 mb-1">ТВ үзэлтийн дундажтай харьцуулахад</span>
+            <span className="text-lg font-bold text-indigo-700">{calculatedInsights.compareAvg}</span>
           </div>
         </div>
       </div>

@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import NewsLayout from '@/module/news/layout/main';
-import Hero from '@/components/Hero';
 import BlogBlock from '@/components/BlogBlock/Index';
 import Dropdown from '@/components/Dropdown/index';
 import route from '@/route';
@@ -17,6 +16,7 @@ const Index = () => {
   const [loader, setLoader] = useState(false);
   const [page, setPage] = useState(1);
   const [ref, setRef] = useState([]);
+  const router = useRouter();
 
   let pagination = {
     default_param: [],
@@ -63,12 +63,12 @@ const Index = () => {
   const getList = () => {
     setLoader(true);
     axios
-      .post(BASE_URL + '/resources/list', pagination)
+      .post(`${BASE_URL}/resources/list`, pagination)
       .then((result) => {
         setData(result?.data?.data);
       })
       .catch((err) => {
-        return;
+        console.error('Error fetching resources:', err);
       })
       .finally(() => {
         setLoader(false);
@@ -78,12 +78,12 @@ const Index = () => {
   const getRef = () => {
     setLoader(true);
     axios
-      .post(BASE_URL + '/reference/list', FilterPagination)
+      .post(`${BASE_URL}/reference/list`, FilterPagination)
       .then((result) => {
         setRef(result?.data?.data);
       })
       .catch((err) => {
-        return;
+        console.error('Error fetching references:', err);
       })
       .finally(() => {
         setLoader(false);
@@ -93,28 +93,9 @@ const Index = () => {
   const handleDropdownChange = (event) => {
     setSelectedOption(event.target.value);
   };
-  const router = useRouter();
 
   return (
     <>
-      <div className='relative'>
-        <Hero imageUrl={'/assets/photo/blogs.png'} />
-        <div className='absolute top-[40%] left-[20%] z-[11] max-lg:hidden'>
-          <p className='text-[12px] font-[500] leading-[18px] text-[#8557F4] mb-[12px]'>
-            Resources
-          </p>
-          <p className='text-[36px] font-[500] leading-[40px] tracking-[-1.44px] text-black mb-[24px]'>
-            Hottest{' '}
-            <span className='text-[36px] font-[700] leading-[40px] tracking-[-1.44px] '>
-              Resources
-            </span>
-          </p>
-          <p className='text-[16px] font-[400] leading-[28px] text-black'>
-            Хамгийн сүүлийн үеийн салбарын мэдээ, ярилцлага, технологи, нөөц.
-          </p>
-        </div>
-      </div>
-
       <NewsLayout>
         <div className='flex flex-row space-x-4 justify-between mt-5'>
           <div className='w-[100%]'>

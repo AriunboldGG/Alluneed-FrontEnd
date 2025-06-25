@@ -85,6 +85,7 @@ const Index = () => {
     authState: { isLoggedIn, user },
     authFunc: { logOut },
   } = useContext(AuthContext);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setSelectedNavItem(path);
@@ -106,11 +107,9 @@ const Index = () => {
   };
 
   return (
-    <header className="bg-[#ffffff] w-[100%] fixed z-[999] flex items-center justify-center">
-      <nav
-        className="flex h-[72px] items-center w-[1380px] justify-between max-xl:w-[80%]"
-        aria-label="Global">
-        <div className="w-[154px] h-[44px] cursor-pointer max-xl:hidden">
+    <header className="bg-[#ffffff] w-full fixed z-[999] flex items-center justify-center shadow-sm">
+      <nav className="flex h-[72px] items-center w-full max-w-screen-2xl justify-between px-2 sm:px-4 md:px-8">
+        <div className="w-[154px] h-[44px] cursor-pointer flex-shrink-0">
           <img
             src="/assets/icons/mainLogo.svg"
             alt="LOGO"
@@ -118,7 +117,8 @@ const Index = () => {
             onClick={() => router.push(route.home)}
           />
         </div>
-        <div className="flex gap-x-8 max-lg:hidden">
+        {/* Desktop Nav */}
+        <div className="hidden lg:flex gap-x-8 items-center flex-1">
           <NavItem
             href={route.campaigns}
             text="Campaigns"
@@ -136,42 +136,63 @@ const Index = () => {
           />
 
           {/* Channels NavItem with Submenu */}
-          <NavItem
-            href={route.channels}
-            text="Traditional Channels"
-            selected={selectedNavItem === route.channels}
-            submenuItems={[
-              { href: "/tv", text: "TV" },
-              { href: "/fm", text: "FM" },
-              {
-                href: "/ooh",
-                text: "OOH",
-                submenuItems: [
-                  { href: "/ooh/way", text: "Зам дагуу" },
-                  { href: "/ooh/led", text: "LEDS" },
-                  { href: "/ooh/liftboard", text: "LIFTBOARDS" },
-                  { href: "/ooh/bus", text: "Autobus" },
-                  { href: "/ooh/taxi", text: "Taxi" },
-                ],
-              },
-              {
-                href: "/prints",
-                text: "Prints",
-                submenuItems: [
-                  { href: "/prints/newspaper", text: "Гадны хаяг" },
-                  { href: "/prints/led", text: "Хэвлэл" },
-                  { href: "/prints/liftboard", text: "Сонин" },
-                  { href: "/prints/bus", text: "Сэтгүүл" },
-                  { href: "/prints/taxi", text: "Сав баглаа" },
-                ],
-              },
-            ]}
-            isSubmenuOpen={openSubmenu === "channels"}
-            setOpenSubmenu={() => setOpenSubmenu("channels")}
-            closeSubmenu={() => setOpenSubmenu(null)}
-            openNestedSubmenu={openNestedSubmenu}
-            setOpenNestedSubmenu={setOpenNestedSubmenu}
-          />
+          <div
+            className={`relative p-[8px] text-[#050514] hover:text-[#FD3D80]`}
+            onMouseEnter={() => setOpenSubmenu("channels")}
+            onMouseLeave={() => setOpenSubmenu(null)}
+          >
+            <div className="text-[17px] font-[500] leading-[24px] flex cursor-default select-none">
+              Traditional Channels
+            </div>
+            {openSubmenu === "channels" && (
+              <div className="absolute left-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <ul>
+                  {[{ href: "/tv", text: "TV" }, { href: "/fm", text: "FM" }, {
+                    href: "/ooh",
+                    text: "OOH",
+                    submenuItems: [
+                      { href: "/ooh/way", text: "Зам дагуу" },
+                      { href: "/ooh/led", text: "LEDS" },
+                      { href: "/ooh/liftboard", text: "LIFTBOARDS" },
+                      { href: "/ooh/bus", text: "Autobus" },
+                      { href: "/ooh/taxi", text: "Taxi" },
+                    ],
+                  }, {
+                    href: "/prints",
+                    text: "Prints",
+                    submenuItems: [
+                      { href: "/prints/newspaper", text: "Гадны хаяг" },
+                      { href: "/prints/led", text: "Хэвлэл" },
+                      { href: "/prints/liftboard", text: "Сонин" },
+                      { href: "/prints/bus", text: "Сэтгүүл" },
+                      { href: "/prints/taxi", text: "Сав баглаа" },
+                    ],
+                  }].map((item) => (
+                    <li
+                      key={item.href}
+                      className="px-4 py-2 hover:bg-gray-100 relative"
+                      onMouseEnter={() => item.submenuItems && setOpenNestedSubmenu(item.href)}
+                      onMouseLeave={() => item.submenuItems && setOpenNestedSubmenu(null)}
+                    >
+                      <Link href={item.href}>{item.text}</Link>
+                      {/* Nested submenu */}
+                      {item.submenuItems && openNestedSubmenu === item.href && (
+                        <div className="absolute left-full top-0 mt-0 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                          <ul>
+                            {item.submenuItems.map((subItem) => (
+                              <li key={subItem.href} className="px-4 py-2 hover:bg-gray-100">
+                                <Link href={subItem.href}>{subItem.text}</Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
 
           <NavItem
             href={route.influencers}
@@ -195,34 +216,57 @@ const Index = () => {
             target="_blank"
           />
         </div>
+        {/* Desktop Sign In/User */}
+        <div className="hidden lg:flex items-center ml-4">
+          {isLoggedIn ? (
+            <Dropdown>
+              <DropdownTrigger>
+                <Avatar
+                  onClick={handlePopover}
+                  name={user?.name?.substring(0, 1)}
+                  src={`${BASE_URL}/file/${user?.photo1?.file_name || user?.photo2?.file_name || ""}`}
+                  size="md"
+                  isBordered
+                  as="button"
+                  className="text-[20px] font-serif bg-[#FD3D80] border-[#FD3D80] text-[#FFFFFF] cursor-pointer transition-transform"
+                />
+              </DropdownTrigger>
+              <DropdownMenu variant="faded" aria-label="Dropdown menu with icons">
+                <DropdownItem key="profile" className="gap-2 h-14">
+                  <p className="font-semibold text-[10px]">Signed in as</p>
+                  <p className="font-semibold text-[10px]">{user?.name}</p>
+                </DropdownItem>
+                <DropdownItem onClick={(e) => { e.stopPropagation(); router.replace(route.myAccount); }}>
+                  My account
+                </DropdownItem>
+                <DropdownItem key="divider" className="h-px bg-gray-200 my-1" disabled />
+                <DropdownItem onClick={logOut} className="text-danger" color="danger">
+                  Log Out
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          ) : (
+            <button
+              className="px-6 py-2 bg-[#FD3D80] text-white font-semibold rounded-lg hover:bg-[#e13c6e] transition"
+              onClick={() => router.push(route.signIn)}
+            >
+              Sign In
+            </button>
+          )}
+        </div>
+        {/* Mobile Hamburger */}
         <button
-          id="dropdownNavbarLink"
-          data-dropdown-toggle="dropdownNavbar"
-          className="flex items-center w-full px-3 py-2 text-gray-900 rounded lg:hidden"
-          onClick={handleDropdownToggle}>
-          Menu
-          <svg
-            className="w-2.5 h-2.5 ms-2.5"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 10 6">
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="m1 1 4 4 4-4"
-            />
-          </svg>
+          className="lg:hidden flex items-center px-3 py-2 border rounded text-[#8557F4] border-[#8557F4]"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Open main menu"
+        >
+          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
         </button>
-
-        <div
-          id="dropdownNavbar"
-          className={`z-10 ${
-            isDropdownOpen ? "" : "hidden"
-          } font-normal bg-white divide-y divide-gray-100 rounded-lg shadow w-44 absolute top-[50px]`}>
-          <ul className="py-2 text-sm" aria-labelledby="dropdownNavbarLink">
+      </nav>
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden w-full bg-white shadow-md absolute top-[72px] left-0 z-50">
+          <div className="flex flex-col gap-4 p-4">
             <NavItem
               href={route.campaigns}
               text="Campaigns"
@@ -263,57 +307,17 @@ const Index = () => {
               text="Marketers"
               selected={selectedNavItem === route.marketers}
             />
-          </ul>
-        </div>
-
-        <div className="flex gap-x-[16px]">
-          {isLoggedIn ? (
-            <Dropdown>
-              <DropdownTrigger>
-                <Avatar
-                  onClick={handlePopover}
-                  name={user?.name?.substring(0, 1)}
-                  src={`${BASE_URL}/file/${
-                    user?.photo1?.file_name || user?.photo2?.file_name || ""
-                  }`}
-                  size="md"
-                  isBordered
-                  as="button"
-                  className="text-[20px] font-serif bg-[#FD3D80] border-[#FD3D80] text-[#FFFFFF] cursor-pointer transition-transform"
-                />
-              </DropdownTrigger>
-              <DropdownMenu
-                variant="faded"
-                aria-label="Dropdown menu with icons">
-                <DropdownItem key="profile" className="gap-2 h-14">
-                  <p className="font-semibold text-[10px]">Signed in as</p>
-                  <p className="font-semibold text-[10px]">{user?.name}</p>
-                </DropdownItem>
-                <DropdownItem
-                  onClick={() => router.replace(`/${route.myAccount}`)}>
-                  My account
-                </DropdownItem>
-                <DropdownItem onClick={logOut}>Log Out</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          ) : (
-            <div
-              className={`px-[16px] py-[10px] h-[40px] transition-all duration-300 cursor-pointer ${
-                isHover ? "bg-[#f7f1f1]" : "bg-[#FD3D80]"
-              }`}
-              onClick={() => router.push(route.signIn)}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}>
-              <p
-                className={`text-[14px] font-[600] leading-[20px] ${
-                  isHover ? "text-[#FD3D80]" : "text-[#FFFFFF]"
-                }`}>
+            {!isLoggedIn && (
+              <button
+                className="mt-4 px-6 py-2 bg-[#FD3D80] text-white font-semibold rounded-lg hover:bg-[#e13c6e] transition"
+                onClick={() => { setMobileMenuOpen(false); router.push(route.signIn); }}
+              >
                 Sign In
-              </p>
-            </div>
-          )}
+              </button>
+            )}
+          </div>
         </div>
-      </nav>
+      )}
     </header>
   );
 };

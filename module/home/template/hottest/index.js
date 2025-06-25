@@ -16,15 +16,15 @@ const channels = [
   { img: '/assets/channels/8.png', color: 'bg-[#FFD600]' },
 ];
 
-const marketers = [
-  { img: '/assets/marketers/1.png', color: 'bg-[#FFD600]' },
-  { img: '/assets/marketers/2.png', color: 'bg-[#FF4F8B]' },
-  { img: '/assets/marketers/3.png', color: 'bg-[#7B61FF]' },
-  { img: '/assets/marketers/4.png', color: 'bg-[#FF4F8B]' },
-  { img: '/assets/marketers/5.png', color: 'bg-[#FFD600]' },
-  { img: '/assets/marketers/6.png', color: 'bg-[#7B61FF]' },
-  { img: '/assets/marketers/7.png', color: 'bg-[#FF4F8B]' },
-  { img: '/assets/marketers/8.png', color: 'bg-[#FFD600]' },
+const influencers = [
+  { img: '/assets/influencers/1.svg', color: 'bg-[#FFD600]' },
+  { img: '/assets/influencers/2.svg', color: 'bg-[#FF4F8B]' },
+  { img: '/assets/influencers/3.svg', color: 'bg-[#7B61FF]' },
+  { img: '/assets/influencers/4.svg', color: 'bg-[#FF4F8B]' },
+  { img: '/assets/influencers/5.svg', color: 'bg-[#FFD600]' },
+  { img: '/assets/influencers/6.svg', color: 'bg-[#7B61FF]' },
+  { img: '/assets/influencers/7.svg', color: 'bg-[#FF4F8B]' },
+  { img: '/assets/influencers/8.svg', color: 'bg-[#FFD600]' },
 ];
 
 const Index = () => {
@@ -96,13 +96,13 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Right: Marketers */}
+      {/* Right: influencers */}
       <div className="flex-1 flex flex-col items-center justify-center py-12 relative z-10"
         style={{ background: "url('/icons/slider-home.svg') right center / cover no-repeat" }}
       >
         <div className="mb-4 flex items-center gap-2">
           <span className="text-[#FFD600] text-xl font-bold">Hottest</span>
-          <span className="text-white text-xl font-bold">Marketers</span>
+          <span className="text-white text-xl font-bold">influencers</span>
           <div className="flex gap-1 ml-4">
             <button className="group w-7 h-7 flex items-center justify-center rounded bg-[#22223B]/80 hover:bg-[#FF4F8B] transition-colors">
               <Image src="assets/icons/leftSmall.svg" alt="prev" width={16} height={16} />
@@ -117,12 +117,12 @@ const Index = () => {
           spaceBetween={24}
           modules={[Navigation]}
           navigation={{
-            prevEl: '.marketers-prev',
-            nextEl: '.marketers-next',
+            prevEl: '.influencers-prev',
+            nextEl: '.influencers-next',
           }}
           className="w-full max-w-[350px] mb-4"
         >
-          {marketers.map((item, i) => (
+          {influencers.map((item, i) => (
             <SwiperSlide key={i}>
               <div className={`w-[70px] h-[70px] rounded-full flex items-center justify-center ${item.color}`}>
                 <Image src={item.img} alt={`marketer-${i}`} width={50} height={50} className="rounded-full object-cover" />

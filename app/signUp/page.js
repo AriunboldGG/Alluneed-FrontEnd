@@ -1,117 +1,279 @@
 'use client';
 //react
-import { useState, useEffect } from 'react';
+import { useState, useContext } from 'react';
 //next
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 //route
 import route from '@/route';
-//
+import * as Yup from 'yup';
+import axios from 'axios';
+import { BASE_URL } from '@/service/path';
+import { useForm, FormProvider, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+//context
+import { AuthContext } from '@/context/auth/authContext';
+import { toast } from 'react-toastify';
+import { Api } from '@/service/api';
+import { mockAuth } from '@/service/mockAuth';
+import Image from 'next/image';
+import { USE_MOCK_BACKEND, MOCK_USERS } from '@/config/auth';
 
 const roles = [
     { id: '1', name: 'Influencer' },
-    { id: '2', name: 'Байгууллага' },
+    { id: '2', name: 'Agency' },
     { id: '3', name: 'Marketer' },
 ];
 
-const Page = () => {
-    const [activeRole, setActiveRole] = useState('1');
+const SignUp = () => {
     const router = useRouter();
+    const { authFunc } = Api();
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        role_id: '1'
+    });
+    const [loading, setLoading] = useState(false);
+
+    const SignUpSchema = Yup.object().shape({
+        name: Yup.string().required('Нэрээ оруулна уу!'),
+        email: Yup.string().email('Имэйл хаяг буруу байна!').required('Имэйл хаягаа оруулна уу!'),
+        password: Yup.string().min(6, 'Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой!').required('Нууц үгээ оруулна уу!'),
+        confirmPassword: Yup.string()
+            .oneOf([Yup.ref('password'), null], 'Нууц үгнүүд таарахгүй байна!')
+            .required('Нууц үгээ давтаж оруулна уу!'),
+    });
+
+    const defaultValues = { name: '', email: '', password: '', confirmPassword: '' };
+
+    const methods = useForm({ resolver: yupResolver(SignUpSchema), defaultValues });
+    const {
+        reset,
+        setError,
+        handleSubmit,
+        control,
+        formState: { errors, isSubmitting },
+    } = methods;
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const onSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        // Validation
+        if (formData.password !== formData.confirmPassword) {
+            toast.error('Нууц үгнүүд таарахгүй байна');
+            setLoading(false);
+            return;
+        }
+
+        if (formData.password.length < 6) {
+            toast.error('Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            if (USE_MOCK_BACKEND) {
+                // Use mock authentication
+                const response = await mockAuth.register(
+                    formData.name,
+                    formData.email,
+                    formData.password,
+                    parseInt(formData.role_id)
+                );
+                
+                if (response.response_code === 200) {
+                    authFunc.signIn(response.token);
+                    toast.success('Амжилттай бүртгэгдлээ!');
+                    router.push('/home');
+                } else {
+                    toast.error(response.response_msg || 'Бүртгэл үүсгэхэд алдаа гарлаа');
+                }
+            } else {
+                // Use real backend
+                const response = await authFunc.POST('auth/register', false, {
+                    name: formData.name,
+                    email: formData.email,
+                    password: formData.password,
+                    role_id: parseInt(formData.role_id)
+                });
+                
+                if (response?.response_code === 200) {
+                    authFunc.signIn(response?.token);
+                    toast.success('Амжилттай бүртгэгдлээ!');
+                    router.push('/home');
+                } else {
+                    toast.error(response?.response_msg || 'Бүртгэл үүсгэхэд алдаа гарлаа');
+                }
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            toast.error('Бүртгэл үүсгэхэд алдаа гарлаа');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
-        <div className="flex max-h-[100vh] h-[100%] max-md:flex-col-reverse max-md:overflow-hidden">
-            <div className="w-[46%] flex relative items-center h-[100%] max-lg:w-[62%] max-md:w-[100%] max-md:flex-col">
-                <div className={`top-[10px] left-[32px] absolute max-md:top-[0] max-md:left-[16px] max-md:relative max-md:self-stretch`}>
-                    <img
-                        src="/assets/icons/mainLogo.svg"
-                        alt="logo"
-                        width={154}
-                        className="cursor-pointer"
-                        onClick={() => {
-                            router.push(route.home);
-                        }}
-                    />
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md w-full space-y-8">
+                <div>
+                    <div className="mx-auto h-12 w-12 flex items-center justify-center">
+                        <Image
+                            src="/assets/icons/mainLogo.svg"
+                            alt="Logo"
+                            width={48}
+                            height={48}
+                            className="h-12 w-auto"
+                        />
+                    </div>
+                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                        Бүртгүүлэх
+                    </h2>
                 </div>
-
-                <div className="flex w-[100%] items-center justify-center h-[100vh] max-md:px-[16px] max-md:mt-[24px]  max-md:items-start">
-                    <div className="p-[20px] w-[70%] flex flex-col gap-[24px] border-[1px] border-[solid] border-[#EAECF0] rounded-[8px] max-md:p-[0px] max-md:border-[0px] max-md:w-[100%]">
-                        <div className="w-[100%]">
-                            <p className="text-[24px] mb-[12px] font-[600] leading-[28px] tracking-[-0.48px]">Бүртгүүлэх</p>
-                            <p className="text-[14px] font-[400] leading-[24px]">30 хоног үнэгүй туршилт хийгээрэй.</p>
-                        </div>
-                        <div className="flex flex-col gap-[24px]">
-                            <div className="h-[44px] p-[4px] flex gap-[8px] rounded-[8px] border-[1px]  border-[#F2F4F7] border-[solid] bg-[#F9FAFB] max-w-[100%]">
+                <form className="mt-8 space-y-6" onSubmit={onSubmit}>
+                    <div className="space-y-4">
+                        {/* Role Selection */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Таны төрөл
+                            </label>
+                            <div className="flex gap-2">
                                 {roles.map((role) => (
-                                    <div
+                                    <button
                                         key={role.id}
-                                        className={`flex items-center px-[8px] py-[8px] cursor-pointer hover:bg-[#FFF] ${
-                                            activeRole === role.id && 'shadow-sm rounded-[6px] bg-[#FFF]'
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, role_id: role.id }))}
+                                        className={`flex-1 py-2 px-3 text-sm font-medium rounded-md border ${
+                                            formData.role_id === role.id
+                                                ? 'bg-indigo-600 text-white border-indigo-600'
+                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                                         }`}
-                                        onClick={() => {
-                                            setActiveRole(role.id);
-                                        }}
                                     >
-                                        <p className="text-[14px] font-[600] leading-[20px]">{role.name}</p>
-                                    </div>
+                                        {role.name}
+                                    </button>
                                 ))}
                             </div>
-                            <div className="flex flex-col gap-[20px] w-[100%]">
-                                <div>
-                                    <p className="text-[#344054] font-[500] leading-[20px] mb-[6px]">Нэр</p>
-                                    <input
-                                        placeholder="Нэрээ оруулна уу"
-                                        className="rounded-[8px] border-[#D0D5DD] border-[1px] border-[solid] w-[100%] h-[44px] pl-[14px] py-[10px]"
-                                    />
-                                </div>
-                                <div>
-                                    <p className="text-[#344054] font-[500] leading-[20px] mb-[6px]">Имэйл</p>
-                                    <input
-                                        placeholder="Имэйлээ оруулна уу"
-                                        className="rounded-[8px] border-[#D0D5DD] border-[1px] border-[solid] w-[100%] h-[44px] pl-[14px] py-[10px]"
-                                    />
-                                </div>
-                                <div>
-                                    <p className="text-[#344054] font-[500] leading-[20px] mb-[6px]">Нууц үг</p>
-                                    <input
-                                        placeholder="Нууц үгээ оруулна уу"
-                                        className="rounded-[8px] border-[#D0D5DD] border-[1px] border-[solid] w-[100%] h-[44px] pl-[14px] py-[10px]"
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex justify-between">
-                                <div className="flex items-center justify-center gap-[8px]">
-                                    <input type="checkbox" />
-                                    <p className="text-[#26003B] text-[14px] leading-[20px] font-[500] py-[2px]">30 хоногийн турш сана</p>
-                                </div>
-
-                                <Link href={''} className="text-[#8557F4] text-[14px] leading-[20px] font-[600] py-[2px] hover:underline">
-                                    Нууц үг мартсан
-                                </Link>
-                            </div>
-                            <button className="py-[10px] px-[18px] bg-[#FD3D80] text-center shadow-xs text-[16px] font-[600] text-[#FFF] leading-[24px] hover:bg-[#f6f2f2] hover:text-[#FD3D80]">
-                                Нэвтрэх
-                            </button>
                         </div>
-                        <div className="flex gap-[4px] justify-center">
-                            <p className="text-[#475467] text-[14px] font-[400] leading-[24px]">Бүртгэлтэй юу?</p>
-                            <Link href={route.signIn} className="text-[14px] font-[600] leading-[20px] text-[#8557F4]">
-                                Нэвтрэх
-                            </Link>
+
+                        {/* Name */}
+                        <div>
+                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                                Нэр
+                            </label>
+                            <input
+                                id="name"
+                                name="name"
+                                type="text"
+                                required
+                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                placeholder="Нэрээ оруулна уу"
+                                value={formData.name}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+
+                        {/* Email */}
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                                Имэйл
+                            </label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                autoComplete="email"
+                                required
+                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                placeholder="Имэйл хаягаа оруулна уу"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+
+                        {/* Password */}
+                        <div>
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                Нууц үг
+                            </label>
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                autoComplete="new-password"
+                                required
+                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                placeholder="Нууц үгээ оруулна уу"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+
+                        {/* Confirm Password */}
+                        <div>
+                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                                Нууц үг давтах
+                            </label>
+                            <input
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                type="password"
+                                autoComplete="new-password"
+                                required
+                                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                placeholder="Нууц үгээ дахин оруулна уу"
+                                value={formData.confirmPassword}
+                                onChange={handleInputChange}
+                            />
                         </div>
                     </div>
-                </div>
-                <div className="bottom-[10px] left-[32px] absolute max-md:hidden">
-                    <p className="text-[14px] font-[400] leading-[20px]">Бүх эрх хуулиар хамгаалагдсан © 2025.</p>
-                </div>
-            </div>
-            <div className="w-[54%] max-lg:w-[38%] max-md:w-[100%] max-md:pb-[40px]">
-                <img
-                    src={'/assets/photo/login.png'}
-                    alt="Login"
-                    style={{ objectFit: 'cover', height: '100%', width: '100%', objectPosition: '50% 0%' }}
-                />
+
+                    <div>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                        >
+                            {loading ? 'Бүртгэж байна...' : 'Бүртгүүлэх'}
+                        </button>
+                    </div>
+
+                    <div className="text-center">
+                        <a
+                            href="/auth/signIn"
+                            className="font-medium text-indigo-600 hover:text-indigo-500"
+                        >
+                            Бүртгэлтэй юу? Нэвтрэх
+                        </a>
+                    </div>
+                </form>
+
+                {USE_MOCK_BACKEND && (
+                    <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                        <h3 className="text-sm font-medium text-yellow-800">Mock Authentication Active</h3>
+                        <p className="text-sm text-yellow-700 mt-1">
+                            Using mock backend. You can create new accounts or use existing ones:
+                        </p>
+                        <ul className="text-xs text-yellow-600 mt-2 space-y-1">
+                            <li>• {MOCK_USERS.INFLUENCER.email} / {MOCK_USERS.INFLUENCER.password} (Influencer)</li>
+                            <li>• {MOCK_USERS.AGENCY.email} / {MOCK_USERS.AGENCY.password} (Agency)</li>
+                            <li>• {MOCK_USERS.MARKETER.email} / {MOCK_USERS.MARKETER.password} (Marketer)</li>
+                        </ul>
+                    </div>
+                )}
             </div>
         </div>
     );
 };
-export default Page;
+
+export default SignUp;

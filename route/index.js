@@ -8,7 +8,7 @@ export default {
     resources: '/resources',
     influencers: '/influencers',
     events: '/events',
-    myAccount: 'myAccount',
+    myAccount: '/myAccount',
     signIn: 'auth/signIn', //Нэвтрэх
     signUp: '/signUp', //бүртгүүлэх
 };

@@ -1,31 +1,21 @@
 'use client';
 //react
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 //components
 import Dropdown from '@/components/Dropdown/index';
 import Hero from '@/components/Hero';
 import InfluencersList from '@/module/influncer/template/influncer';
 //layout
 import AgencyLayout from '@/module/agency/layout/main';
-import { useRouter } from 'next/navigation';
-import { AuthContext } from '@/context/auth/authContext';
-//server
 import axios from 'axios';
 import { BASE_URL } from '@/service/path';
-import { getcookie } from '@/service/utils';
-import route from '@/route';
-import { enqueueSnackbar } from 'notistack';
 
 const Influencers = () => {
   const [selectedOption, setSelectedOption] = useState('');
   const [data, setData] = useState([]);
   const [loader, setLoader] = useState(false);
-  const router = useRouter();
   const [filter, setFilter] = useState();
   const [ref, setRef] = useState([]);
-  const {
-    authFunc: { POST },
-  } = useContext(AuthContext);
   console.log('inf data ====> ', data)
 
   let FilterPagination = {
@@ -59,12 +49,6 @@ const Influencers = () => {
   };
 
   useEffect(() => {
-    const tk = getcookie('token');
-
-    if (!tk) {
-      enqueueSnackbar('Та эхлээд нэвтрэн үү', 'warning');
-      router.push(route.signIn);
-    }
     setLoader(true);
 
     axios
@@ -72,9 +56,8 @@ const Influencers = () => {
       .then((result) => {
         setData(result?.data);
       })
-      
       .catch((err) => {
-        return;
+        console.error('Error fetching users:', err);
       })
       .finally(() => {
         setLoader(false);
@@ -98,7 +81,7 @@ const Influencers = () => {
         setFilter(result?.data?.data?.[0]?.ID);
       })
       .catch((err) => {
-        return;
+        console.error('Error fetching references:', err);
       })
       .finally(() => {
         setLoader(false);
@@ -107,23 +90,24 @@ const Influencers = () => {
 
   return (
     <>
-      <div className='relative'>
-        <Hero imageUrl={'/assets/photo/campaings.png'} />
-        <div className='absolute top-[40%] left-[20%] z-[10]'>
-          <p className='text-[12px] font-[500] leading-[18px] text-[#8557F4] mb-[12px]'>
-            Digital
-          </p>
-          <p className='text-[36px] font-[500] leading-[40px] tracking-[-1.44px] text-[#FFF] mb-[24px]'>
-            Digital{' '}
-            <span className='text-[36px] font-[700] leading-[40px] tracking-[-1.44px] text-[#FFF]'>
-              Channels
-            </span>
-          </p>
-          <p className='text-[16px] font-[400] leading-[28px] text-[#EAECF0]'>
+      {/* Full-width Influencers Page Header */}
+      <div className="relative w-full h-[260px] md:h-[340px] overflow-hidden flex items-center">
+        {/* SVG Background */}
+        <img
+          src="/assets/svg/top-inf.svg"
+          alt="Influencers Header Background"
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+        />
+        {/* Left text */}
+        <div className="relative z-10 pl-8 md:pl-32 flex-1">
+          <p className="text-[#8557F4] text-sm font-medium mb-3">Navigation Top Influencers</p>
+          <h1 className="text-white text-3xl md:text-5xl font-bold mb-4">Influencers</h1>
+          <p className="text-[#EAECF0] text-base md:text-lg">
             Хамгийн сүүлийн үеийн салбарын мэдээ, ярилцлага, технологи, нөөц.
           </p>
         </div>
       </div>
+      {/* Main content inside AgencyLayout */}
       <AgencyLayout>
         <div className='flex w-[100%] justify-between mb-[32px]'>
           <div className='h-[44px] p-[4px] flex gap-[8px] rounded-[8px] border-[1px]  border-[#F2F4F7] border-[solid] bg-[#F2F4F7] mt-[48px]'>

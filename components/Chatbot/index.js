@@ -12,9 +12,6 @@ const clientQuestions = [
 ];
 
 const Chatbot = () => {
-  const { authState } = useContext(AuthContext);
-  if (!authState?.isLoggedIn) return null;
-
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
     {

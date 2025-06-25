@@ -26,46 +26,52 @@ const data = [
   },
 ];
 
-const Index = () => {
+const Discount = () => {
   return (
-    <div className="flex w-full justify-center gap-8 max-md:flex-col py-8 bg-[#fafbfc]">
-      {data.map((item, i) => (
-        <div
-          key={i}
-          className="relative rounded-xl overflow-hidden shadow-lg min-w-[320px] max-w-[360px] w-full h-[240px] flex-shrink-0 bg-black"
-        >
-          {/* Image */}
-          <Image
-            src={item.img}
-            alt={item.title}
-            className="object-cover w-full h-full"
-            removeWrapper
-          />
-          {/* Overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-          {/* Label pill */}
-          <div className="absolute top-4 left-4 z-10">
-            <span className="bg-[#8557F4CC] text-white text-xs font-semibold px-4 py-1 rounded-full">
-              {item.label}
-            </span>
-          </div>
-          {/* Play icon for first card */}
-          {item.showPlay && (
-            <div className="absolute top-4 right-4 z-10 flex items-center justify-center w-8 h-8 bg-white/80 rounded-full">
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="#8557F4">
-                <polygon points="6,4 16,10 6,16" />
-              </svg>
+    <div className="w-full flex flex-col items-center">
+      <div className="flex w-full justify-center gap-8 max-md:flex-col py-8 bg-[#fafbfc]">
+        {data.map((item, i) => (
+          <div
+            key={i}
+            className="relative rounded-xl overflow-hidden shadow-lg min-w-[320px] max-w-[360px] w-full h-[240px] flex-shrink-0 bg-black group transition-transform hover:scale-105"
+          >
+            {/* Image */}
+            <Image
+              src={item.img}
+              alt={item.title}
+              className="object-cover w-full h-full"
+              removeWrapper
+            />
+            {/* Overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            {/* Label pill */}
+            <div className="absolute top-4 left-4 z-10">
+              <span className="bg-[#8557F4CC] text-white text-xs font-semibold px-4 py-1 rounded-full">
+                {item.label}
+              </span>
             </div>
-          )}
-          {/* Title and author */}
-          <div className="absolute left-4 bottom-6 z-10">
-            <div className="text-white text-lg font-semibold drop-shadow mb-1">{item.title}</div>
-            <div className="text-white text-xs font-normal opacity-80">{item.author}</div>
+            {/* Play icon for first card */}
+            {item.showPlay && (
+              <div className="absolute top-4 right-4 z-10 flex items-center justify-center w-8 h-8 bg-white/80 rounded-full shadow-lg">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="#8557F4">
+                  <polygon points="6,4 16,10 6,16" />
+                </svg>
+              </div>
+            )}
+            {/* Title and author */}
+            <div className="absolute left-4 bottom-6 z-10">
+              <div className="text-white text-lg font-semibold drop-shadow mb-1">
+                {item.title}
+              </div>
+              <div className="text-white text-xs font-normal opacity-80">
+                {item.author}
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };
 
-export default Index;
+export default Discount;

@@ -1,15 +1,12 @@
 'use client';
 //react
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 //components
 import Dropdown from '@/components/Dropdown/index';
 import Hero from '@/components/Hero';
 import AgencyList from '@/module/agency/template/agency';
 //layout
 import AgencyLayout from '@/module/agency/layout/main';
-import { useRouter } from 'next/navigation';
-import { AuthContext } from '@/context/auth/authContext';
-//server
 import axios from 'axios';
 import { BASE_URL } from '@/service/path';
 
@@ -67,7 +64,7 @@ const Agency = () => {
         setData(result?.data);
       })
       .catch((err) => {
-        return;
+        console.error('Error fetching agents:', err);
       })
       .finally(() => {
         setLoader(false);
@@ -87,7 +84,7 @@ const Agency = () => {
         setFilter(result?.data?.data?.[0]?.ID);
       })
       .catch((err) => {
-        return;
+        console.error('Error fetching references:', err);
       })
       .finally(() => {
         setLoader(false);
@@ -100,10 +97,7 @@ const Agency = () => {
 
   return (
     <>
-      <div className='relative'>
-        <Hero imageUrl={'/assets/photo/campaings.png'} />
      
-      </div>
       <AgencyLayout>
         <div className='flex w-[100%] justify-between mb-[32px]'>
           <div className='h-[44px] p-[4px] flex gap-[8px] rounded-[8px] border-[1px]  border-[#F2F4F7] border-[solid] bg-[#F2F4F7] mt-[48px]'>
@@ -117,7 +111,7 @@ const Agency = () => {
                   setFilter(i.ID);
                 }}
               >
-                <p className='text-[14px] font-[600] leading-[20px]'>
+                <p className="text-[14px] font-[600] leading-[20px]">
                   {i.name}
                 </p>
               </div>
