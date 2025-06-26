@@ -1,9 +1,12 @@
 import { useState } from "react";
 import Modal from "./modalDecaux";
+import { useBag } from '@/context/BagContext';
 
 const Index = ({ item, index }) => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedData, setSelectedData] = useState(null); // For storing data specific to the row
+  const { bag, addToBag } = useBag();
+  const inBag = bag.some((i) => i.type === 'decaux' && i.item.id === item.id);
 
   // Sample data for table rows. Replace this with actual data.
   const tableData = [
@@ -56,6 +59,15 @@ const Index = ({ item, index }) => {
             ))}
           </tbody>
         </table>
+
+        {/* Add to Bag Button */}
+        <button
+          className={`mt-4 inline-block rounded px-12 py-3 text-sm font-medium text-center w-full max-w-[250px] transition ${inBag ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-pink-600 text-white hover:bg-pink-700'}`}
+          disabled={inBag}
+          onClick={() => addToBag('decaux', item)}
+        >
+          {inBag ? 'Added to Bag' : 'Add to Bag'}
+        </button>
 
         {/* Modal */}
         <Modal open={openModal} onClose={() => setOpenModal(false)} data={selectedData} />

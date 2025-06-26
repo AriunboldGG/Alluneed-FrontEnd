@@ -10,6 +10,7 @@ import AgencyLayout from '@/module/agency/layout/main';
 import axios from 'axios';
 import { BASE_URL } from '@/service/path';
 import Image from 'next/image';
+import { useBag } from '@/context/BagContext';
 
 const mockInfluencers = [
   {
@@ -103,6 +104,7 @@ const Influencers = () => {
   const [data, setData] = useState([]);
   const [loader, setLoader] = useState(false);
   const [filter, setFilter] = useState();
+  const { bag, addToBag } = useBag();
 
   let FilterPagination = {
     filter: [
@@ -190,65 +192,75 @@ const Influencers = () => {
         </div>
       </div>
       <div className="max-w-4xl mx-auto py-10 space-y-8">
-        {mockInfluencers.map((inf, idx) => (
-          <div key={inf.id} className="bg-white rounded-2xl shadow p-6 flex flex-col md:flex-row gap-6 border border-gray-100">
-            {/* Profile and main info */}
-            <div className="flex flex-col items-center md:w-1/4 min-w-[160px]">
-              <Image
-                src={inf.avatar}
-                alt={inf.name}
-                width={128}
-                height={128}
-                className="rounded-full object-cover mb-2 border border-gray-200 shadow-md"
-                style={{ width: 128, height: 128 }}
-                unoptimized
-              />
-              <div className="text-xl font-bold mt-2">{idx + 1}. {inf.name}</div>
-              <div className="text-gray-500 text-sm">{inf.country}</div>
-              <div className="text-blue-600 text-sm">{inf.username}</div>
-              <button className="mt-3 px-4 py-2 bg-blue-600 text-white rounded font-semibold text-sm hover:bg-blue-700 transition">FULL PROFILE DATA</button>
-            </div>
-            {/* Stats and analytics */}
-            <div className="flex-1 grid grid-cols-2 gap-4">
-              <div>
-                <div className="font-medium text-xs text-gray-500">Followers</div>
-                <div className="text-lg font-bold">{inf.followers}</div>
+        {mockInfluencers.map((inf, idx) => {
+          const inBag = bag.some((i) => i.type === 'influencer' && i.item.id === inf.id);
+          return (
+            <div key={inf.id} className="bg-white rounded-2xl shadow p-6 flex flex-col md:flex-row gap-6 border border-gray-100">
+              {/* Profile and main info */}
+              <div className="flex flex-col items-center md:w-1/4 min-w-[160px]">
+                <Image
+                  src={inf.avatar}
+                  alt={inf.name}
+                  width={128}
+                  height={128}
+                  className="rounded-full object-cover mb-2 border border-gray-200 shadow-md"
+                  style={{ width: 128, height: 128 }}
+                  unoptimized
+                />
+                <div className="text-xl font-bold mt-2">{idx + 1}. {inf.name}</div>
+                <div className="text-gray-500 text-sm">{inf.country}</div>
+                <div className="text-blue-600 text-sm">{inf.username}</div>
+                <button className="mt-3 px-4 py-2 bg-blue-600 text-white rounded font-semibold text-sm hover:bg-blue-700 transition">FULL PROFILE DATA</button>
+                <button
+                  className={`mt-2 px-4 py-2 rounded font-semibold text-sm transition ${inBag ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-pink-600 text-white hover:bg-pink-700'}`}
+                  disabled={inBag}
+                  onClick={() => addToBag('influencer', inf)}
+                >
+                  {inBag ? 'Added to Bag' : 'Add to Bag'}
+                </button>
               </div>
-              <div>
-                <div className="font-medium text-xs text-gray-500">Engagement rate</div>
-                <div className="text-lg font-bold">{inf.engagementRate}</div>
-              </div>
-              <div>
-                <div className="font-medium text-xs text-gray-500">Fake Followers</div>
-                <div className="text-lg font-bold">{inf.fakeFollowers}</div>
-              </div>
-              <div>
-                <div className="font-medium text-xs text-gray-500">Average Reel plays</div>
-                <div className="text-lg font-bold">{inf.avgReelPlays}</div>
-              </div>
-              <div className="col-span-2 mt-2">
-                <div className="font-medium text-xs text-gray-500 mb-1">Audience location by country</div>
-                <ul className="text-sm">
-                  {inf.audienceLocation.map(loc => (
-                    <li key={loc.country}>{loc.country}: <span className="font-semibold">{loc.percent}%</span></li>
-                  ))}
-                </ul>
-              </div>
-              <div className="col-span-2 mt-2">
-                <div className="font-medium text-xs text-gray-500 mb-1">Audience gender</div>
-                <div className="text-sm">Эрэгтэй: <span className="font-semibold">{inf.audienceGender.male}%</span> | Эмэгтэй: <span className="font-semibold">{inf.audienceGender.female}%</span></div>
-              </div>
-              <div className="col-span-2 mt-2">
-                <div className="font-medium text-xs text-gray-500 mb-1">Most used #hashtags</div>
-                <div className="flex flex-wrap gap-2">
-                  {inf.hashtags.map(tag => (
-                    <span key={tag} className="bg-gray-100 px-2 py-1 rounded text-xs">{tag}</span>
-                  ))}
+              {/* Stats and analytics */}
+              <div className="flex-1 grid grid-cols-2 gap-4">
+                <div>
+                  <div className="font-medium text-xs text-gray-500">Followers</div>
+                  <div className="text-lg font-bold">{inf.followers}</div>
+                </div>
+                <div>
+                  <div className="font-medium text-xs text-gray-500">Engagement rate</div>
+                  <div className="text-lg font-bold">{inf.engagementRate}</div>
+                </div>
+                <div>
+                  <div className="font-medium text-xs text-gray-500">Fake Followers</div>
+                  <div className="text-lg font-bold">{inf.fakeFollowers}</div>
+                </div>
+                <div>
+                  <div className="font-medium text-xs text-gray-500">Average Reel plays</div>
+                  <div className="text-lg font-bold">{inf.avgReelPlays}</div>
+                </div>
+                <div className="col-span-2 mt-2">
+                  <div className="font-medium text-xs text-gray-500 mb-1">Audience location by country</div>
+                  <ul className="text-sm">
+                    {inf.audienceLocation.map(loc => (
+                      <li key={loc.country}>{loc.country}: <span className="font-semibold">{loc.percent}%</span></li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="col-span-2 mt-2">
+                  <div className="font-medium text-xs text-gray-500 mb-1">Audience gender</div>
+                  <div className="text-sm">Эрэгтэй: <span className="font-semibold">{inf.audienceGender.male}%</span> | Эмэгтэй: <span className="font-semibold">{inf.audienceGender.female}%</span></div>
+                </div>
+                <div className="col-span-2 mt-2">
+                  <div className="font-medium text-xs text-gray-500 mb-1">Most used #hashtags</div>
+                  <div className="flex flex-wrap gap-2">
+                    {inf.hashtags.map(tag => (
+                      <span key={tag} className="bg-gray-100 px-2 py-1 rounded text-xs">{tag}</span>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </>
   );

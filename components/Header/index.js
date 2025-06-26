@@ -15,6 +15,8 @@ import { BASE_URL } from "@/service/path";
 import { color } from "framer-motion";
 import { red } from "@material-tailwind/html/theme/base/colors";
 import Image from "next/image";
+import { useBag } from '@/context/BagContext';
+import BagModal from './BagModal';
 
 const NavItem = ({  href,
   text,
@@ -79,6 +81,7 @@ const NavItem = ({  href,
 const Index = () => {
   const [isHover, setIsHover] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isBagModalOpen, setIsBagModalOpen] = useState(false);
 
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const [openNestedSubmenu, setOpenNestedSubmenu] = useState(null);
@@ -91,6 +94,7 @@ const Index = () => {
     authFunc: { logOut },
   } = useContext(AuthContext);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { bag } = useBag();
 
   useEffect(() => {
     setSelectedNavItem(path);
@@ -233,6 +237,24 @@ const Index = () => {
             selected={selectedNavItem === "/ai-tools"}
           />
         </div>
+        {/* Bag Icon/Button */}
+        <button
+          className="relative ml-4 flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition"
+          aria-label="Open bag"
+          onClick={() => setIsBagModalOpen(true)}
+        >
+          {/* Bag SVG icon */}
+          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-gray-700">
+            <path d="M6 7V6a6 6 0 1 1 12 0v1" />
+            <rect width="18" height="13" x="3" y="7" rx="2" />
+          </svg>
+          {/* Badge */}
+          {bag.length > 0 && (
+            <span className="absolute top-1 right-1 bg-pink-600 text-white text-xs rounded-full px-1.5 py-0.5 font-bold">
+              {bag.length}
+            </span>
+          )}
+        </button>
         {/* Desktop Sign In/User */}
         <div className="hidden lg:flex items-center ml-4">
           {isLoggedIn ? (
@@ -340,6 +362,11 @@ const Index = () => {
           </div>
         </div>
       )}
+      {/* Bag Modal */}
+      <BagModal 
+        isOpen={isBagModalOpen} 
+        onClose={() => setIsBagModalOpen(false)} 
+      />
     </header>
   );
 };

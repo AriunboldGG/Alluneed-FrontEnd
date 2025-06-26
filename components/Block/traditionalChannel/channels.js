@@ -1,6 +1,7 @@
 import { BASE_URL } from "@/service/path";
 import { useState } from "react";
 import Modal from "./TV/modal";
+import { useBag } from '@/context/BagContext';
 
 const channelImages = [
   "/assets/channels/tv5.png",
@@ -26,6 +27,9 @@ const fmImageMap = {
 const Index = ({ item, index, catName }) => {
   const [openModal, setOpenModal] = useState(false);
   const [data, setData] = useState(null);
+  const { bag, addToBag } = useBag();
+  const bagType = catName === 'TV' ? 'tv' : catName === 'FM' ? 'fm' : 'channel';
+  const inBag = bag.some((i) => i.type === bagType && i.item.id === item.id);
 
   let imageUrl;
   if (catName === "TV") {
@@ -100,6 +104,13 @@ const Index = ({ item, index, catName }) => {
           className="bg-gradient-to-r from-[#8557F4] to-[#3E2E92] text-white font-semibold rounded-lg px-6 py-2 shadow hover:from-[#6c3fd1] hover:to-[#2a1e6b] transition-colors"
         >
           Үзэх
+        </button>
+        <button
+          className={`mt-2 px-4 py-2 rounded font-semibold text-sm transition ${inBag ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-pink-600 text-white hover:bg-pink-700'}`}
+          disabled={inBag}
+          onClick={() => addToBag(bagType, item)}
+        >
+          {inBag ? 'Added to Bag' : 'Add to Bag'}
         </button>
       </div>
       {/* Modal */}

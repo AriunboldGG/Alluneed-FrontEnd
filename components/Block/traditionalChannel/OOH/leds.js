@@ -1,9 +1,13 @@
 import { BASE_URL } from "@/service/path";
 import { useState } from "react";
 import Modal from "./modalOOH";
+import { useBag } from '@/context/BagContext';
+
 const Index = ({ item, index }) => {
   const [openModal, setOpenModal] = useState(false);
   const [data, setData] = useState(null);
+  const { bag, addToBag } = useBag();
+  const inBag = bag.some((i) => i.type === 'ooh' && i.item.id === item.id);
 
   return (
     <div className="flex flex-row min-h-[400px] w-full p-3 justify-around space-x-3">
@@ -112,6 +116,13 @@ const Index = ({ item, index }) => {
           className="inline-block rounded border border-indigo-600 bg-indigo-600 px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-indigo-600 focus:outline-none focus:ring w-full max-w-[250px] active:text-indigo-500 text-center "
           href="#">
           Дэлгэрэнгүй харах OOH
+        </button>
+        <button
+          className={`mt-2 inline-block rounded px-12 py-3 text-sm font-medium text-center w-full max-w-[250px] transition ${inBag ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-pink-600 text-white hover:bg-pink-700'}`}
+          disabled={inBag}
+          onClick={() => addToBag('ooh', item)}
+        >
+          {inBag ? 'Added to Bag' : 'Add to Bag'}
         </button>
       </div>
 

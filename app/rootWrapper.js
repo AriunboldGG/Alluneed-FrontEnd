@@ -9,6 +9,7 @@ import LoadingScreen from './Loading';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Chatbot from '@/components/Chatbot';
+import { BagProvider } from '@/context/BagContext';
 
 export default function ParentWrapper({ children }) {
     const { authFunc, authState, authDispatch } = Api();
@@ -21,6 +22,7 @@ export default function ParentWrapper({ children }) {
     }, [path]);
     return (
         <NextUIProvider>
+            <BagProvider>
             <AuthContext.Provider value={{ authFunc, authState, authDispatch }}>
                 {loading ? (
                     <LoadingScreen />
@@ -32,6 +34,7 @@ export default function ParentWrapper({ children }) {
                     </>
                 )}
             </AuthContext.Provider>
+            </BagProvider>
         </NextUIProvider>
     );
 }

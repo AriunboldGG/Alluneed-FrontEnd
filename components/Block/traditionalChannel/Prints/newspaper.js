@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useBag } from '@/context/BagContext';
 
 // Sample company data
 const companies = [
@@ -36,6 +37,9 @@ const companies = [
 ];
 
 const Index = () => {
+  const { bag, addToBag } = useBag();
+  const inBag = bag.some((i) => i.type === 'newspaper');
+
   return (
     <div className="flex flex-col min-h-[400px] w-full p-3 space-y-3">
       <div className="flex flex-row text-2xl justify-center mb-4">
@@ -53,6 +57,13 @@ const Index = () => {
           </div>
         ))}
       </div>
+      <button
+        className={`mt-4 inline-block rounded px-12 py-3 text-sm font-medium text-center w-full max-w-[250px] transition ${inBag ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-pink-600 text-white hover:bg-pink-700'}`}
+        disabled={inBag}
+        onClick={() => addToBag('newspaper', { name: 'Newspaper', type: 'newspaper' })}
+      >
+        {inBag ? 'Added to Bag' : 'Add to Bag'}
+      </button>
     </div>
   );
 };
