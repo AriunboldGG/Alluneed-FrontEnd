@@ -60,11 +60,14 @@ export const Api = () => {
                     token: data,
                     isLoggedIn: true,
                 };
+                console.log('Dispatching IS_LOGGED_IN with payload:', payload);
                 dispatch({ type: 'IS_LOGGED_IN', payload });
                 setcookie(data);
                 console.log('Token stored in cookie');
                 // Immediately fetch and set user data
+                console.log('Fetching user data...');
                 await handlers.getUserData();
+                console.log('User data fetched, current state:', state);
             },
 
             //хэрэглэгч гарах
@@ -79,16 +82,23 @@ export const Api = () => {
 
             getUserData: () => {
                 let data = getcookie('token');
+                console.log('getUserData called, token from cookie:', data);
                 if (data) {
                     data = cleanToken(data);
+                    console.log('Cleaned token:', data);
                     
                     if (USE_MOCK_BACKEND) {
                         // Use mock authentication
+                        console.log('Using mock backend for getUserData');
                         mockAuth.getUserData(data)
                             .then((res) => {
+                                console.log('Mock getUserData response:', res);
                                 if (res?.response_code === 200) {
+                                    console.log('Dispatching SET_USER with payload:', res?.data);
                                     dispatch({ type: 'SET_USER', payload: res?.data });
+                                    console.log('SET_USER dispatched');
                                 } else {
+                                    console.log('Mock getUserData failed, removing cookie');
                                     removeCookie();
                                 }
                             })
@@ -98,6 +108,7 @@ export const Api = () => {
                             });
                     } else {
                         // Use real backend
+                        console.log('Using real backend for getUserData');
                         axios
                             .get(
                                 `${BASE_URL}/users/me`,
@@ -108,18 +119,24 @@ export const Api = () => {
                                 }
                             )
                             .then((res) => {
+                                console.log('Real getUserData response:', res);
                                 if (res?.status === 200 && res?.data?.response_code === 200) {
+                                    console.log('Dispatching SET_USER with payload:', res?.data?.data);
                                     dispatch({ type: 'SET_USER', payload: res?.data?.data });
+                                    console.log('SET_USER dispatched');
                                 } else {
+                                    console.log('Real getUserData failed, removing cookie');
                                     removeCookie();
                                 }
                             })
                             .catch((err) => {
+                                console.log('Real getUserData error, removing cookie:', err);
                                 removeCookie();
                                 return;
                             });
                     }
                 } else {
+                    console.log('No token found in cookie');
                     removeCookie();
                 }
             },

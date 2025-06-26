@@ -96,6 +96,11 @@ const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { bag } = useBag();
 
+  // Debug authentication state
+  console.log('Header - isLoggedIn:', isLoggedIn);
+  console.log('Header - user:', user);
+  console.log('Header - authState:', { isLoggedIn, user });
+
   useEffect(() => {
     setSelectedNavItem(path);
     setIsDropdownOpen(false);
