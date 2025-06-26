@@ -6,58 +6,50 @@ import Works from '@/module/campaigns/template/campaign';
 import axios from 'axios';
 import { BASE_URL } from '@/service/path';
 
+const mockCampaigns = {
+  data: [
+    {
+      id: 1,
+      title: 'MCS Coca-Cola Summer Campaign',
+      created_at: '2024-06-01',
+      image: { file_name: 'campaings.png' },
+    },
+    {
+      id: 2,
+      title: 'Unitel NextGen Digital Launch',
+      created_at: '2024-05-15',
+      image: { file_name: 'Blog.png' },
+    },
+    {
+      id: 3,
+      title: 'G-Mobile Brand Awareness',
+      created_at: '2024-04-20',
+      image: { file_name: 'hottest.png' },
+    },
+  ],
+  pagination: { total_pages: 1 },
+};
+
 const Campaigns = () => {
-
-  const [data, setData] = useState([]);
-  const [loader, setLoader] = useState(false);
-  const [page, setPage] = useState(1);
-  const [ref, setRef] = useState([]);
-
-
-  let pagination = {
-    default_param: [],
-    filter: [],
-    page_no: page,
-    per_page: 8,
-    sort: 'created_at desc',
-  };
-
-  useEffect(() => {
-    setLoader(true);
-    axios
-      .post(`${BASE_URL}/company/list`, pagination)
-      .then((result) => {
-        setData(result?.data);
-      })
-      .catch((err) => {
-        return;
-      })
-      .finally(() => {
-        setLoader(false);
-      });
-  }, [page]);
-
   return (
     <>
-      <div className='relative'>
-        <Hero imageUrl={'/assets/photo/campaings.png'} />
-        <div className='absolute top-[40%] left-[20%] z-[9999] max-lg:hidden'>
-          <p className='text-[12px] font-[500] leading-[18px] text-[#8557F4] mb-[12px]'>
-            Campaigns
-          </p>
-          <p className='text-[36px] font-[500] leading-[40px] tracking-[-1.44px] text-[#FFF] mb-[24px]'>
-            Marketing{' '}
-            <span className='text-[36px] font-[700] leading-[40px] tracking-[-1.44px] text-[#FFF]'>
-              campaigns
-            </span>
-          </p>
-          <p className='text-[16px] font-[400] leading-[28px] text-[#EAECF0]'>
-            Хамгийн сүүлийн үеийн салбарын мэдээ, ярилцлага, технологи, нөөц.
+      {/* Full-width Campaigns Page Header */}
+      <div className="relative w-full h-[260px] md:h-[340px] overflow-hidden flex items-center">
+        <img
+          src="/assets/photo/campaings.png"
+          alt="Campaigns Header Background"
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+        />
+        <div className="relative z-10 pl-8 md:pl-32 flex-1">
+          <p className="text-[#8557F4] text-sm font-medium mb-3">Campaigns</p>
+          <h1 className="text-white text-3xl md:text-5xl font-bold mb-4">Top Marketing Campaigns</h1>
+          <p className="text-[#EAECF0] text-base md:text-lg">
+            Монголын шилдэг маркетингийн 3 кампанит ажлын жагсаалт.
           </p>
         </div>
       </div>
       <CampaignsLayout>
-        <Works data={data} setPage={setPage} page={page} />
+        <Works data={mockCampaigns} setPage={() => {}} page={1} />
       </CampaignsLayout>
     </>
   );

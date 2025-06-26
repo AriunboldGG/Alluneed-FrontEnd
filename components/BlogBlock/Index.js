@@ -8,7 +8,7 @@ const Index = ({ shadow, i }) => {
       {/* Cover Image */}
       <div className="h-[180px] w-full">
         <img
-          src={i?.image || '/assets/photo/download.png'}
+          src='/assets/photo/Blog.png'
           alt={i?.name || 'Blog cover'}
           className="w-full h-full object-cover"
         />
@@ -17,13 +17,7 @@ const Index = ({ shadow, i }) => {
       <div className="flex-1 flex flex-col justify-between p-5">
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <img
-              src="/assets/photo/Avatar.png"
-              width={32}
-              height={32}
-              className="rounded-full border border-[#eee] object-cover"
-              alt="Avatar"
-            />
+          
             <span className="text-[#8557F4] font-medium text-xs">{i?.type?.name}</span>
             <span className="text-[#8557F4] font-medium text-xs ml-auto">8 мин унш</span>
           </div>

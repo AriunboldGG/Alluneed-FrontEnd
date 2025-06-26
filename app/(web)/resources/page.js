@@ -9,149 +9,58 @@ import { Pagination } from '@nextui-org/react';
 import axios from 'axios';
 import { BASE_URL } from '@/service/path';
 
+const mockResources = [
+  {
+    id: 1,
+    name: 'Маркетингийн Тренд 2024',
+    description: '2024 оны Монголын маркетингийн гол чиг хандлага, шинэ технологи, хэрэглэгчийн зан төлөвийн өөрчлөлт.',
+    image: '/assets/photo/Blog.png',
+    type: { name: 'Тренд' },
+  },
+  {
+    id: 2,
+    name: 'Дижитал Маркетингийн Гарын авлага',
+    description: 'Дижитал маркетингийн суурь ойлголт, хэрэгжүүлэх алхам, хэрэгтэй хэрэгслүүдийн жагсаалт.',
+    image: '/assets/photo/download.png',
+    type: { name: 'Гарын авлага' },
+  },
+  {
+    id: 3,
+    name: 'Контент Маркетингийн Жишээ',
+    description: 'Монголын шилдэг контент маркетингийн кейс судалгаа, амжилтын түүхүүд.',
+    image: '/assets/photo/hottest.png',
+    type: { name: 'Кейс' },
+  },
+];
+
 const Index = () => {
-  const [activeRole, setActiveRole] = useState(1);
-  const [selectedOption, setSelectedOption] = useState('');
-  const [data, setData] = useState([]);
-  const [loader, setLoader] = useState(false);
-  const [page, setPage] = useState(1);
-  const [ref, setRef] = useState([]);
-  const router = useRouter();
-
-  let pagination = {
-    default_param: [],
-    filter: [
-      {
-        // field_name: 'type.id',
-        // field_type: 'number',
-        // operation: '=',
-        // value: `${activeRole}`,
-        // values: [activeRole],
-      },
-    ],
-    glob_operation: 'string',
-    page_no: 0,
-    per_page: 0,
-    sort: 'string',
-  };
-
-  let FilterPagination = {
-    default_param: [],
-    filter: [
-      {
-        field_name: 'code',
-        field_type: 'string',
-        operation: '=',
-        // value: 8,
-        value: 'Resources_type',
-      },
-    ],
-    glob_operation: 'string',
-    page_no: 0,
-    per_page: 0,
-    sort: 'string',
-  };
-
-  useEffect(() => {
-    getList();
-  }, [activeRole]);
-
-  useEffect(() => {
-    getRef();
-  }, []);
-
-  const getList = () => {
-    setLoader(true);
-    axios
-      .post(`${BASE_URL}/resources/list`, pagination)
-      .then((result) => {
-        setData(result?.data?.data);
-      })
-      .catch((err) => {
-        console.error('Error fetching resources:', err);
-      })
-      .finally(() => {
-        setLoader(false);
-      });
-  };
-
-  const getRef = () => {
-    setLoader(true);
-    axios
-      .post(`${BASE_URL}/reference/list`, FilterPagination)
-      .then((result) => {
-        setRef(result?.data?.data);
-      })
-      .catch((err) => {
-        console.error('Error fetching references:', err);
-      })
-      .finally(() => {
-        setLoader(false);
-      });
-  };
-
-  const handleDropdownChange = (event) => {
-    setSelectedOption(event.target.value);
-  };
-
   return (
     <>
-      <NewsLayout>
-        <div className='flex flex-row space-x-4 justify-between mt-5'>
-          <div className='w-[100%]'>
-            <div className='flex  gap-[16px]'>
-              {ref?.map((i) => {
-                return (
-                  <div
-                    key={i.ID}
-                    className={`hover:text-[#FD3D80] cursor-pointer ${
-                      activeRole === i.ID &&
-                      'border-[solid] border-b-[2px] border-[#FD3D80] text-[#FD3D80]'
-                    }`}
-                    onClick={() => {
-                      setActiveRole(i.ID);
-                    }}
-                  >
-                    <p className='p-[4px] text-[16px] font-[500] leading-[24px]'>
-                      {i?.name}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-            <div className='border-[#EAECF0] border-[0.5px] border-[solid] w-[80%]' />
-          </div>
-          <div className='flex '>
-            <Dropdown
-              selectedOption={selectedOption}
-              handler={handleDropdownChange}
-            />
-          </div>
+      {/* Full-width Resources Page Header */}
+      <div className="relative w-full h-[260px] md:h-[340px] overflow-hidden flex items-center">
+        <img
+          src="/assets/photo/Blog.png"
+          alt="Resources Header Background"
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+        />
+        <div className="relative z-10 pl-8 md:pl-32 flex-1">
+          <p className="text-[#8557F4] text-sm font-medium mb-3">Resources</p>
+          <h1 className="text-white text-3xl md:text-5xl font-bold mb-4">Top Marketing Resources</h1>
+          <p className="text-[#EAECF0] text-base md:text-lg">
+            Монголын маркетингийн салбарын шилдэг 3 нөөц, гарын авлага, тренд.
+          </p>
         </div>
-        <div className='grid grid-rows-2 grid-cols-4 gap-10 w-[100%] gap-x-[32px] gap-y-[40px] mt-[40px] justify-center ax-md:grid-rows-4 max-md:grid-cols-2 max-md:w-[98%] max-sm:grid-rows-8 max-sm:grid-cols-1 items-center'>
-          {data?.map((i) => {
-            return (
-              <div
-                className='shadow-md hover:shadow-xl'
-                key={i}
-                onClick={() => router.push(`${route.resources}/${i.id}`)}
-              >
-                <BlogBlock i={i} />
-              </div>
-            );
-          })}
-        </div>
-      </NewsLayout>
-      <Pagination
-        isCompact
-        showControls
-        total={data?.pagination?.total_pages}
-        initialPage={page}
-        variant='light'
-        size='lg'
-        color='primary'
-        onChange={(page) => setPage(page)}
-      />
+      </div>
+      <div className='grid grid-rows-2 grid-cols-4 gap-10 w-[100%] gap-x-[32px] gap-y-[40px] mt-[40px] justify-center ax-md:grid-rows-4 max-md:grid-cols-2 max-md:w-[98%] max-sm:grid-rows-8 max-sm:grid-cols-1 items-center'>
+        {mockResources.map((i) => (
+          <div
+            className='shadow-md hover:shadow-xl'
+            key={i.id}
+          >
+            <BlogBlock i={i} />
+          </div>
+        ))}
+      </div>
     </>
   );
 };

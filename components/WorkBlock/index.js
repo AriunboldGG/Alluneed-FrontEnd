@@ -9,7 +9,7 @@ const Index = ({ campaigns, row }) => {
     <motion.div whileHover={{ scale: 1.01 }}>
       <div className="bg-white overflow-hidden  ">
         <img
-          src="../assets/photo/Blog.png"
+          src="../assets/photo/image.png"
           alt="People"
           className="w-full object-cover h-32 sm:h-48 md:h-64"
         />

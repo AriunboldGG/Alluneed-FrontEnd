@@ -6,7 +6,7 @@ const Index = ({ item }) => {
   return (
     <div className='w-[100%] flex border-[#EAECF0] border-[1px] border-[solid]'>
       <div className='max-h-[300px] max-w-[420px] overflow-hidden'>
-        <img src={BASE_URL + '/file/' + item?.image?.file_name} alt='agency' />
+        <img src='/assets/photo/agency2.png' alt='agency' />
       </div>
       <div className='ml-[24px] flex justify-between items-center w-[100%] mr-[32px]'>
         <div className='flex flex-col gap-[12px]'>
