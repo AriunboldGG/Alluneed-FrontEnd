@@ -14,6 +14,7 @@ import {
 import { BASE_URL } from "@/service/path";
 import { color } from "framer-motion";
 import { red } from "@material-tailwind/html/theme/base/colors";
+import Image from "next/image";
 
 const NavItem = ({  href,
   text,
@@ -33,7 +34,7 @@ const NavItem = ({  href,
       onMouseLeave={closeSubmenu}
     >
       <Link href={href}>
-        <div className={`text-[17px] font-[500] leading-[24px] flex ${selected ? 'font-bold text-blue-500' : ''}`}>
+        <div className={`text-[15px] font-[500] leading-[24px] flex cursor-pointer ${selected ? 'font-bold text-blue-500' : ''}`}>
     {text}
   </div>
       </Link>
@@ -49,7 +50,11 @@ const NavItem = ({  href,
                 onMouseEnter={() => item.submenuItems && setOpenNestedSubmenu(item.href)}
                 onMouseLeave={() => item.submenuItems && setOpenNestedSubmenu(null)}
               >
-                <Link href={item.href}>{item.text}</Link>
+                {item.text === "OOH" && item.submenuItems ? (
+                  <span className="text-[15px] font-[500] leading-[24px] flex cursor-default select-none opacity-70">{item.text}</span>
+                ) : (
+                  <Link href={item.href}>{item.text}</Link>
+                )}
                 {/* Nested submenu */}
                 {item.submenuItems && openNestedSubmenu === item.href && (
                   <div className="absolute left-full top-0 mt-0 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
@@ -110,15 +115,18 @@ const Index = () => {
     <header className="bg-[#ffffff] w-full fixed z-[999] flex items-center justify-center shadow-sm">
       <nav className="flex h-[72px] items-center w-full max-w-screen-2xl justify-between px-2 sm:px-4 md:px-8">
         <div className="w-[154px] h-[44px] cursor-pointer flex-shrink-0">
-          <img
+          <Image
             src="/assets/icons/mainLogo.svg"
             alt="LOGO"
             width={154}
+            height={44}
+            priority
+            style={{ objectFit: 'contain', width: '100%', height: 'auto' }}
             onClick={() => router.push(route.home)}
           />
         </div>
         {/* Desktop Nav */}
-        <div className="hidden lg:flex gap-x-8 items-center flex-1">
+        <div className="hidden lg:flex gap-x-4 items-center flex-1">
           <NavItem
             href={route.campaigns}
             text="Campaigns"
@@ -141,7 +149,7 @@ const Index = () => {
             onMouseEnter={() => setOpenSubmenu("channels")}
             onMouseLeave={() => setOpenSubmenu(null)}
           >
-            <div className="text-[17px] font-[500] leading-[24px] flex cursor-default select-none">
+            <div className="text-[15px] font-[500] leading-[24px] flex cursor-default select-none">
               Traditional Channels
             </div>
             {openSubmenu === "channels" && (
@@ -174,7 +182,11 @@ const Index = () => {
                       onMouseEnter={() => item.submenuItems && setOpenNestedSubmenu(item.href)}
                       onMouseLeave={() => item.submenuItems && setOpenNestedSubmenu(null)}
                     >
-                      <Link href={item.href}>{item.text}</Link>
+                      {item.text === "OOH" && item.submenuItems ? (
+                        <span className="text-[15px] font-[500] leading-[24px] flex cursor-default select-none opacity-70">{item.text}</span>
+                      ) : (
+                        <Link href={item.href}>{item.text}</Link>
+                      )}
                       {/* Nested submenu */}
                       {item.submenuItems && openNestedSubmenu === item.href && (
                         <div className="absolute left-full top-0 mt-0 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
@@ -214,6 +226,11 @@ const Index = () => {
             text="Marketers"
             selected={selectedNavItem === route.marketers}
             target="_blank"
+          />
+          <NavItem
+            href="/ai-tools"
+            text="AI Tools"
+            selected={selectedNavItem === "/ai-tools"}
           />
         </div>
         {/* Desktop Sign In/User */}
@@ -306,6 +323,11 @@ const Index = () => {
               href={route.marketers}
               text="Marketers"
               selected={selectedNavItem === route.marketers}
+            />
+            <NavItem
+              href="/ai-tools"
+              text="AI Tools"
+              selected={selectedNavItem === "/ai-tools"}
             />
             {!isLoggedIn && (
               <button

@@ -17,7 +17,7 @@ const Home = () => {
 
             <div className="w-full flex flex-col items-center bg-[#fafbfc]">
                 {/* Discount/Featured Campaigns Section */}
-                <section className="w-full max-w-screen-xl mx-auto px-4 md:px-8 mt-[-60px] z-10 relative">
+                <section className="w-full max-w-screen-xl mx-auto px-4 md:px-8 mt-[200px] z-10 relative">
                     <h2 className="text-[32px] md:text-[40px] font-bold text-center mb-8 leading-tight">
                         Онцлох <span className="font-extrabold">урамшууллууд</span>
                     </h2>
@@ -37,9 +37,9 @@ const Home = () => {
                 </section>
 
                 {/* Hottest Campaigns Section */}
-                <section className="w-full max-w-screen-xl mx-auto px-4 md:px-8 mt-12">
+                {/* <section className="w-full max-w-screen-xl mx-auto px-4 md:px-8 mt-12">
                     <Works />
-                </section>
+                </section> */}
 
                 {/* Hottest Channels & Marketers Section */}
                 {/* <section className="w-full bg-[#0B0B23] py-16 mt-12">
@@ -49,9 +49,9 @@ const Home = () => {
                 </section> */}
 
                 {/* Hottest Blogs/Articles Section */}
-                <section className="w-full max-w-screen-xl mx-auto px-4 md:px-8 mt-12 mb-16">
+                {/* <section className="w-full max-w-screen-xl mx-auto px-4 md:px-8 mt-12 mb-16">
                     <Blogs />
-                </section>
+                </section> */}
 
                 {/* Chatbot (optional, can be moved or styled as needed) */}
                 <Chatbot />

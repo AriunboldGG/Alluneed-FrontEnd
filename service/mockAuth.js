@@ -98,15 +98,15 @@ const mockData = {
       type: { id: 1, name: 'TV' },
       description: 'National television channel',
       viewers: '2.5M',
-      image: '/assets/photo/tv.png'
+      // image: '/assets/channels/tv5.png'
     },
     {
       id: 2,
-      name: 'Voo',
+      name: 'UBS',
       type: { id: 2, name: 'Radio' },
       description: 'Popular radio station',
       listeners: '500K',
-      image: '/assets/photo/fm.png'
+      image: '/assets/channels/ubs.png'
     },
     {
       id: 3,
@@ -114,7 +114,7 @@ const mockData = {
       type: { id: 3, name: 'OOH' },
       description: 'Digital outdoor advertising',
       impressions: '1M',
-      image: '/assets/photo/ooh.png'
+      image: '/assets/channels/mnb.svg'
     }
   ],
 

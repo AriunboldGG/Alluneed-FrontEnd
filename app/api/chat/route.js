@@ -35,9 +35,6 @@ export async function POST(req) {
     const { message } = await req.json();
     const apiKey = process.env.OPENAI_API_KEY;
 
-    console.log('DEBUG: OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? 'exists' : 'MISSING');
-    console.log('DEBUG: About to call OpenAI with message:', message);
-
     // 1. Check for a default answer
     const found = defaultQA.find(
       (qa) => qa.question.trim().toLowerCase() === message.trim().toLowerCase()

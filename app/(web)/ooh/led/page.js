@@ -221,19 +221,20 @@ const Index = () => {
 
   return (
     <>
-      <div className="relative">
-        <div className="absolute top-[40%] left-[20%]">
-          <p className="text-[12px] font-[500] leading-[18px] text-[#8557F4] mb-[12px]">
-            LEDS
-          </p>
-          <p className="text-[36px] font-[500] leading-[40px] tracking-[-1.44px] text-[#050514] mb-[24px]">
-            Hottest{" "}
-            <span className="text-[36px] font-[700] leading-[40px] tracking-[-1.44px] text-[#050514]">
-              LEDS
-            </span>
-          </p>
-          <p className="text-[16px] font-[400] leading-[28px] text-[#475467]">
-            Хамгийн сүүлийн үеийн салбарын мэдээ, ярилцлага, технологи, нөөц.
+      {/* OOH LED Page Header - similar to TV */}
+      <div className="relative w-full h-[260px] md:h-[340px] overflow-hidden flex items-center mb-8">
+        {/* SVG Background */}
+        <img
+          src="/assets/svg/tv-top.svg"
+          alt="LED Header Background"
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+        />
+        {/* Left text */}
+        <div className="relative z-10 pl-8 md:pl-32 flex-1">
+          <p className="text-[#8557F4] text-sm font-medium mb-3">OOH - LED</p>
+          <h1 className="text-white text-3xl md:text-5xl font-bold mb-4">LEDS</h1>
+          <p className="text-[#EAECF0] text-base md:text-lg">
+            Хамгийн сүүлийн үеийн LED дэлгэцийн байршил, статистик, мэдээлэл.
           </p>
         </div>
       </div>

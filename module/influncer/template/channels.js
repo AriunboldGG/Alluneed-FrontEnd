@@ -9,8 +9,6 @@ import Newspaper from '@/components/Block/traditionalChannel/Prints/newspaper'
 import { Pagination } from "@nextui-org/react";
 
 const Index = ({ data, catName }) => {
-  // const [ref, setRef] = useState([]);
-  console.log("refff=>", catName);
 
   return (
     <div className="w-[100%] flex flex-col gap-[24px] mb-[32px] items-center">

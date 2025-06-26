@@ -6,7 +6,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 
 const channels = [
-  { img: '/assets/channels/1.png', color: 'bg-[#FFD600]' },
+  { img: '/assets/channels/tv.png', color: 'bg-[#FFD600]' },
   { img: '/assets/channels/2.png', color: 'bg-[#7B61FF]' },
   { img: '/assets/channels/3.png', color: 'bg-[#FF4F8B]' },
   { img: '/assets/channels/4.png', color: 'bg-[#FF4F8B]' },

@@ -30,8 +30,8 @@ const renderCustomizedLabel = ({
 const GenderPieChart = ({ data }) => {
   // If you want to use static data, you can skip the reduce part and just use:
   const genderData = [
-    { name: "Man", value: 36 },
-    { name: "Woman", value: 64 },
+    { name: "Эрэгтэй", value: 36 },
+    { name: "Эмэгтэй", value: 64 },
   ];
 
   return (

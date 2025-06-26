@@ -3,31 +3,55 @@ import { useState } from "react";
 import Modal from "./TV/modal";
 
 const channelImages = [
-  "/assets/channels/1.png",
-  "/assets/channels/2.png",
-  "/assets/channels/3.png",
-  "/assets/channels/4.png",
-  "/assets/channels/5.png",
-  "/assets/channels/6.png",
+  "/assets/channels/tv5.png",
+  "/assets/channels/ubs.png",
+  "/assets/channels/mnb.svg",
 ];
+
+// Mapping of channel name keywords to image paths
+const tvImageMap = {
+  "tv 5": "/assets/channels/tv5.png",
+  "ubs": "/assets/channels/ubs.png",
+  "mnb": "/assets/channels/mnb.svg",
+};
+
+// Mapping of FM channel name keywords to image paths
+const fmImageMap = {
+  "city": "/assets/channels/1.png",
+  "classic": "/assets/channels/2.png",
+  "radio": "/assets/channels/3.png",
+  // Add more FM mappings as needed
+};
 
 const Index = ({ item, index, catName }) => {
   const [openModal, setOpenModal] = useState(false);
   const [data, setData] = useState(null);
 
-  // Use static image for TV list, fallback to item image otherwise
-  const imageUrl = catName === "TV"
-    ? channelImages[index % channelImages.length]
-    : (item?.image?.file_name ? BASE_URL + "/file/" + item?.image?.file_name : channelImages[0]);
+  let imageUrl;
+  if (catName === "TV") {
+    const key = Object.keys(tvImageMap).find(k =>
+      item?.name?.toLowerCase().includes(k)
+    );
+    imageUrl = key ? tvImageMap[key] : channelImages[index % channelImages.length];
+  } else if (catName === "FM") {
+    const key = Object.keys(fmImageMap).find(k =>
+      item?.name?.toLowerCase().includes(k)
+    );
+    imageUrl = key ? fmImageMap[key] : channelImages[index % channelImages.length];
+  } else {
+    imageUrl = (item?.image?.file_name
+      ? BASE_URL + "/file/" + item?.image?.file_name
+      : channelImages[0]);
+  }
 
   return (
     <div className="flex flex-row items-center bg-white rounded-xl shadow-md p-6 mb-6 w-full min-h-[160px] hover:shadow-lg transition-shadow">
       {/* Image */}
-      <div className="flex-shrink-0 w-28 h-28 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center">
+      <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center">
         <img
-          alt={item?.name || "TV Channel"}
+          alt={item?.name || (catName === 'TV' ? 'TV Channel' : 'Channel')}
           src={imageUrl}
-          className="object-cover w-full h-full"
+          className="object-contain w-16 h-16"
         />
       </div>
       {/* Details */}

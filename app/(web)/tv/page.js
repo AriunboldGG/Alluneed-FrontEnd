@@ -1,12 +1,45 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Dropdown from "@/components/Dropdown/index";
 import { AuthContext } from "@/context/auth/authContext";
 import { getcookie } from "@/service/utils";
 import { enqueueSnackbar } from "notistack";
 import ChannelsList from "@/module/influncer/template/channels";
 import AgencyLayout from "@/module/agency/layout/main";
+
+const mockTVChannels = [
+  {
+    id: 1,
+    name: 'TV 5',
+    address: 'Улаанбаатар',
+    tv_daily_avg_views: '2.5M',
+    tv_univision_number: '101',
+    social_links: {
+      instagram: 'https://instagram.com/tv5',
+      facebook: 'https://facebook.com/tv5',
+    },
+  },
+  {
+    id: 2,
+    name: 'UBS',
+    address: 'Дархан',
+    tv_daily_avg_views: '1.8M',
+    tv_univision_number: '102',
+    social_links: {
+      instagram: 'https://instagram.com/ubs',
+    },
+  },
+  {
+    id: 3,
+    name: 'MNB',
+    address: 'Эрдэнэт',
+    tv_daily_avg_views: '1.2M',
+    tv_univision_number: '103',
+    social_links: {
+      facebook: 'https://facebook.com/mnb',
+    },
+  },
+];
 
 const Index = () => {
   const [filter, setFilter] = useState(null);
@@ -16,13 +49,12 @@ const Index = () => {
   const [loader, setLoader] = useState(false);
   const [page, setPage] = useState(1);
   const [ref, setRef] = useState([]);
-  const [catName, setCatName] = useState("");
-
+  const [catName, setCatName] = useState('TV');
   const {
     authFunc: { POST },
   } = useContext(AuthContext);
-
   const router = useRouter();
+
   useEffect(() => {
     getList();
   }, [activeRole, filter]);
@@ -33,7 +65,6 @@ const Index = () => {
 
   const getList = () => {
     setLoader(true);
-
     let pagination = {
       default_param: [{}],
       filter: filter
@@ -50,14 +81,11 @@ const Index = () => {
       per_page: 10,
       sort: "created_at desc",
     };
-
     POST("channel/list", true, pagination)
       .then((result) => {
         setData(result?.data);
       })
-      .catch((err) => {
-        return;
-      })
+      .catch(() => {})
       .finally(() => {
         setLoader(false);
       });
@@ -68,9 +96,7 @@ const Index = () => {
     if (!tk) {
       enqueueSnackbar("Та эхлээд нэвтрэн үү", "warning");
     }
-
     setLoader(true);
-
     let FilterPagination = {
       default_param: [],
       filter: [
@@ -86,20 +112,16 @@ const Index = () => {
       per_page: 10,
       sort: "created_at desc",
     };
-
     POST("reference/list", true, FilterPagination)
       .then((result) => {
-        // Filter to get only TV category, assuming "TV" is a known category name or ID
         const tvCategory = result?.data.find((item) => item.name === "TV");
-        setRef(tvCategory ? [tvCategory] : []);  // Only keep the TV category
+        setRef(tvCategory ? [tvCategory] : []);
         if (tvCategory) {
-          setFilter(tvCategory.ID);  // Set the filter ID to TV category ID
+          setFilter(tvCategory.ID);
           setCatName(tvCategory.name);
         }
       })
-      .catch((err) => {
-        return;
-      })
+      .catch(() => {})
       .finally(() => {
         setLoader(false);
       });
@@ -142,35 +164,23 @@ const Index = () => {
                 key={i.ID}
                 className={`flex items-center px-[8px] py-[8px] cursor-pointer rounded-[6px] ${
                   filter === i.ID
-                    ? "bg-[#FFF] shadow-md" // Styles for active tab
-                    : "hover:bg-[#FFF]" // Styles for inactive tabs
+                    ? "bg-[#FFF] shadow-md"
+                    : "hover:bg-[#FFF]"
                 }`}
-                onClick={() =>
-                  handleFilterChange(
-                    i.ID,
-                    i.name,
-                    console.log("catId==>", i.ID)
-                  )
-                }>
+                onClick={() => handleFilterChange(i.ID, i.name)}
+              >
                 <p
                   className={`text-[14px] font-[600] leading-[20px] ${
                     filter === i.ID ? "text-[#000]" : "text-[#333]"
-                  }`}>
+                  }`}
+                >
                   {i.name}
                 </p>
               </div>
             ))}
           </div>
-
-          <div className="flex items-end justify-start test-agency">
-            <Dropdown
-              selectedOption={selectedOption}
-              handler={handleDropdownChange}
-            />
-          </div>
         </div>
-
-        <ChannelsList data={data} catName={catName} />
+        <ChannelsList data={mockTVChannels} catName={catName} />
       </AgencyLayout>
     </>
   );
