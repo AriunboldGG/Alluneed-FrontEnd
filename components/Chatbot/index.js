@@ -48,11 +48,7 @@ const Chatbot = () => {
       answer:
         "Тиймээ чадна гэхдээ төлөвлөгөө боловсруулахын өмнө таниас хэдэн зүйлсийг тодруулах шаардлагатай. Та хариулахад бэлэн үү?",
     },
-    {
-      question: clientQuestions[0], // here
-      answer: "Баярлалаа таны төлөвлөгөө бэлэн боллоо ",
-    },
-  ];  
+  ];
 
   // Call your backend endpoint to get OpenAI response
   async function fetchAIResponse(message) {
@@ -80,17 +76,41 @@ const Chatbot = () => {
     setMessages((prev) => [...prev, { from: "user", text: currentUserMessage }]);
     setInput("");
     setLoading(true);
+    
     // If in client question flow
     if (clientStep > 0 && clientStep <= clientQuestions.length) {
       setClientAnswers([...clientAnswers, currentUserMessage]);
-      const aiReply = await fetchAIResponse(currentUserMessage);
+      
+      // Check if this is the last question (budget question)
+      if (clientStep === clientQuestions.length) {
+        // This is the last question, show modal after a brief delay
+        setMessages((prev) => [
+          ...prev,
+          { from: "bot", text: "Баярлалаа! Таны бүх хариултыг хүлээн авлаа. Төлөвлөгөөг бэлтгэж байна..." },
+        ]);
+        setLoading(false);
+        
+        // Open modal after a short delay
+        setTimeout(() => {
+          setIsModalOpen(true);
+          // Reset the flow
+          setClientStep(0);
+          setClientAnswers([]);
+        }, 2000);
+        return;
+      }
+      
+      // Not the last question, ask the next one
+      const nextQuestion = clientQuestions[clientStep];
       setMessages((prev) => [
         ...prev,
-        { from: "bot", text: aiReply || "Уучлаарай, таны асуултыг ойлгосонгүй. Дахин оролдоно уу." },
+        { from: "bot", text: nextQuestion },
       ]);
+      setClientStep(clientStep + 1);
       setLoading(false);
       return;
     }
+    
     // If bot just asked "Та хариулахад бэлэн үү?" and client says "тийм"
     if (
       messages[messages.length - 1]?.text.includes("Та хариулахад бэлэн үү?") &&
@@ -104,6 +124,7 @@ const Chatbot = () => {
       setLoading(false);
       return;
     }
+    
     const aiReply = await fetchAIResponse(currentUserMessage);
     setMessages((prev) => [
       ...prev,
