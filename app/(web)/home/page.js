@@ -14,12 +14,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, TrendingUp, Users, Award, Star } from 'lucide-react';
 import NewsSection from '@/components/NewsSection';
+import HeroSection from '@/components/HeroSection';
 
 const Home = () => {
     return (
         <>
-            {/* Hero Section */}
-            <Hero />
+            <HeroSection />
 
             {/* Main Content */}
             <div className="w-full bg-gradient-to-b from-gray-50 to-white">
@@ -81,14 +81,7 @@ const Home = () => {
 
                 {/* Top Agencies Section */}
                 <section className="w-full max-w-screen-xl mx-auto px-4 md:px-8 py-16">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Шилдэг <span className="text-blue-600">агентлагууд</span>
-                        </h2>
-                        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                            Монголын хамгийн нэр хүндтэй маркетингийн агентлагууд
-                        </p>
-                    </div>
+                   
                     <TopAgency />
                 </section>
 
@@ -96,16 +89,11 @@ const Home = () => {
                 <section className="w-full bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 py-16">
                     <div className="max-w-screen-xl mx-auto px-4 md:px-8">
                         <div className="text-center mb-12">
-                            <Badge variant="secondary" className="mb-4 bg-white/10 text-white border-white/20">
-                                <TrendingUp className="w-3 h-3 mr-2" />
-                                Хамгийн хүчтэй
-                            </Badge>
+                          
                             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                                <span className="text-pink-400">Инфлюенсерүүд</span>
+                                <span className="text-pink-400">Инфлюнсерүүд</span>
                             </h2>
-                            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-                                Монголын хамгийн нөлөө бүхий инфлюенсерүүдтэй танилцаарай
-                            </p>
+                           
                         </div>
                         <Influencers />
                     </div>

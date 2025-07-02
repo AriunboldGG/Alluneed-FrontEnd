@@ -17,14 +17,14 @@ const data = [
     label: "Symetra",
     title: "Breathe",
     author: "By Copacino Fujikado",
-    img: 'assets/photo/sale1.png',
+    img: 'assets/photo/image3.png',
     showPlay: false,
   },
   {
     label: "Virgin Plus",
     title: "Obviously",
     author: "By Zulu Alpha Kilo",
-    img: 'assets/photo/sale2.png',
+    img: 'assets/photo/image3.png',
     showPlay: false,
   },
 ];
