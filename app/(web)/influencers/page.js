@@ -174,6 +174,12 @@ const Influencers = () => {
       });
   };
 
+  const fetchInsights = async () => {
+    const res = await fetch('/api/instagram-insights?access_token=USER_TOKEN&ig_user_id=IG_USER_ID');
+    const data = await res.json();
+    // Display data in your component
+  };
+
   return (
     <>
       {/* Full-width Influencers Page Header */}

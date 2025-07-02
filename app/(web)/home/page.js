@@ -99,44 +99,10 @@ const Home = () => {
                     </div>
                 </section>
 
-                {/* Works Section */}
-                <section className="w-full max-w-screen-xl mx-auto px-4 md:px-8 py-16">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Бидний <span className="text-green-600">ажлууд</span>
-                        </h2>
-                        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                            Амжилттай дуусгасан төслүүдийнхээ жишээг үзээрэй
-                        </p>
-                    </div>
-                    <Works />
-                </section>
-
                 {/* News Section */}
                 <NewsSection />
 
-                {/* CTA Section */}
-                <section className="w-full max-w-screen-xl mx-auto px-4 md:px-8 py-16">
-                    <Card className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 shadow-2xl">
-                        <CardContent className="p-12 text-center">
-                            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                                Маркетингийн амжилтад бэлэн үү?
-                            </h2>
-                            <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
-                                Одоо эхлээд үнэгүй демо үзэж, таны бизнест тохирсон маркетинг стратегийг олж авна уу
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold">
-                                    Үнэгүй эхлэх
-                                    <ArrowRight className="ml-2 w-5 h-5" />
-                                </Button>
-                                <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 px-8 py-4 text-lg">
-                                    Дэлгэрэнгүй мэдэх
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </section>
+              
             </div>
 
             <Chatbot />
