@@ -1,6 +1,9 @@
 'use client';
 
-import { Image } from '@nextui-org/react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Play } from 'lucide-react';
 
 const data = [
   {
@@ -28,46 +31,56 @@ const data = [
 
 const Discount = () => {
   return (
-    <div className="w-full flex flex-col items-center">
-      <div className="flex w-full justify-center gap-8 max-md:flex-col py-8 bg-[#fafbfc]">
+    <div className="w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {data.map((item, i) => (
-          <div
+          <Card
             key={i}
-            className="relative rounded-xl overflow-hidden shadow-lg min-w-[320px] max-w-[360px] w-full h-[240px] flex-shrink-0 bg-black group transition-transform hover:scale-105"
+            className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 cursor-pointer"
           >
-            {/* Image */}
-            <Image
-              src={item.img}
-              alt={item.title}
-              className="object-cover w-full h-full"
-              removeWrapper
-            />
-            {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-            {/* Label pill */}
-            <div className="absolute top-4 left-4 z-10">
-              <span className="bg-[#8557F4CC] text-white text-xs font-semibold px-4 py-1 rounded-full">
-                {item.label}
-              </span>
-            </div>
-            {/* Play icon for first card */}
-            {item.showPlay && (
-              <div className="absolute top-4 right-4 z-10 flex items-center justify-center w-8 h-8 bg-white/80 rounded-full shadow-lg">
-                <svg width="18" height="18" viewBox="0 0 20 20" fill="#8557F4">
-                  <polygon points="6,4 16,10 6,16" />
-                </svg>
+            <CardContent className="p-0">
+              {/* Image Container */}
+              <div className="relative h-64 overflow-hidden">
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
+                />
+                
+                {/* Overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                
+                {/* Label badge */}
+                <div className="absolute top-4 left-4 z-10">
+                  <Badge className="bg-purple-600/90 text-white border-0 hover:bg-purple-600">
+                    {item.label}
+                  </Badge>
+                </div>
+                
+                {/* Play button for first card */}
+                {item.showPlay && (
+                  <div className="absolute top-4 right-4 z-10">
+                    <Button
+                      size="sm"
+                      className="w-10 h-10 rounded-full bg-white/90 hover:bg-white text-purple-600 p-0"
+                    >
+                      <Play className="w-4 h-4 ml-0.5" />
+                    </Button>
+                  </div>
+                )}
+                
+                {/* Content */}
+                <div className="absolute left-4 bottom-4 z-10">
+                  <h3 className="text-white text-lg font-semibold drop-shadow mb-1 group-hover:text-purple-200 transition-colors">
+                    {item.title}
+                  </h3>
+                  <p className="text-white/80 text-sm">
+                    {item.author}
+                  </p>
+                </div>
               </div>
-            )}
-            {/* Title and author */}
-            <div className="absolute left-4 bottom-6 z-10">
-              <div className="text-white text-lg font-semibold drop-shadow mb-1">
-                {item.title}
-              </div>
-              <div className="text-white text-xs font-normal opacity-80">
-                {item.author}
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>
